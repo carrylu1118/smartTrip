@@ -30,7 +30,7 @@ public class Swagger2Config {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 //页面标题
-                .title("黑马顺风车 - All in one")
+                .title("智驾游 - All in one")
                 //创建人
                 .contact(new Contact("Shawn", null, "wangshouwen@itcast.cn"))
                 //版本号
