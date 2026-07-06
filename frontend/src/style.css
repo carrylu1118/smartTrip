@@ -1,0 +1,265 @@
+/* ============================
+   黑马顺风车 — 全局样式
+   ============================ */
+
+:root {
+  /* 品牌色 */
+  --color-primary: #FF6B35;
+  --color-primary-light: #FF8A5C;
+  --color-primary-dark: #E55A2B;
+  --color-secondary: #4ECDC4;
+  --color-secondary-light: #6ED8D1;
+  --color-secondary-dark: #3DBDB5;
+
+  /* 背景 */
+  --bg-page: #F2F4F8;
+  --bg-white: #FFFFFF;
+  --bg-card: #FFFFFF;
+
+  /* 文字 */
+  --text-primary: #1A1A2E;
+  --text-secondary: #6B7280;
+  --text-hint: #9CA3AF;
+  --text-white: #FFFFFF;
+
+  /* 边框与分割线 */
+  --border-color: #EBEDF0;
+  --divider-color: #F0F0F0;
+
+  /* 阴影 */
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-button: 0 4px 12px rgba(255, 107, 53, 0.3);
+
+  /* 圆角 */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-round: 999px;
+
+  /* 间距 */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-xxl: 24px;
+
+  /* 字体 */
+  --font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-xxl: 20px;
+  --font-size-title: 24px;
+}
+
+/* ---- 全局重置 ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg-page);
+}
+
+/* ---- 卡片样式 ---- */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-lg);
+  margin: var(--space-md) var(--space-lg);
+}
+
+/* ---- 按钮渐变主样式 ---- */
+.btn-primary {
+  display: inline-block;
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  border-radius: var(--radius-round);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: var(--text-white);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-button);
+  transition: opacity 0.2s, transform 0.1s;
+}
+.btn-primary:active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+/* 次要按钮 */
+.btn-secondary {
+  display: inline-block;
+  width: 100%;
+  padding: 12px 0;
+  border: 1.5px solid var(--color-primary);
+  border-radius: var(--radius-round);
+  background: transparent;
+  color: var(--color-primary);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-secondary:active {
+  background: var(--color-primary);
+  color: var(--text-white);
+}
+
+/* ---- 输入框统一样式 ---- */
+.input-field {
+  width: 100%;
+  height: 44px;
+  padding: 0 var(--space-lg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-white);
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input-field:focus {
+  border-color: var(--color-primary);
+}
+.input-field::placeholder {
+  color: var(--text-hint);
+}
+
+/* ---- 页面容器 ---- */
+.page-container {
+  min-height: 100vh;
+  padding-bottom: 60px;
+  background: var(--bg-page);
+}
+
+/* ---- 状态标签色 ---- */
+.status-pending {
+  color: #F59E0B;
+}
+.status-active {
+  color: var(--color-primary);
+}
+.status-done {
+  color: var(--color-secondary);
+}
+.status-cancel {
+  color: var(--text-hint);
+}
+.status-refund {
+  color: #6366F1;
+}
+.status-refunded {
+  color: #10B981;
+}
+.status-default {
+  color: var(--text-secondary);
+}
+
+/* ---- 文本工具 ---- */
+.text-primary {
+  color: var(--text-primary);
+}
+.text-secondary {
+  color: var(--text-secondary);
+}
+.text-hint {
+  color: var(--text-hint);
+}
+.text-primary-color {
+  color: var(--color-primary);
+}
+.text-secondary-color {
+  color: var(--color-secondary);
+}
+
+.text-sm {
+  font-size: var(--font-size-sm);
+}
+.text-md {
+  font-size: var(--font-size-md);
+}
+.text-lg {
+  font-size: var(--font-size-lg);
+}
+.text-xl {
+  font-size: var(--font-size-xl);
+}
+.text-bold {
+  font-weight: 600;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* ---- 间距工具 ---- */
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mt-xl { margin-top: var(--space-xl); }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+.mb-xl { margin-bottom: var(--space-xl); }
+.p-md { padding: var(--space-md); }
+.p-lg { padding: var(--space-lg); }
+
+/* ---- Flex 工具 ---- */
+.flex {
+  display: flex;
+}
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+.flex-1 {
+  flex: 1;
+}
+
+/* ---- 一行省略 ---- */
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

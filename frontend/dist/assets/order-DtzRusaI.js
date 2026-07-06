@@ -1,0 +1,1 @@
+import{a as i}from"./index-Ckd5NC9R.js";function t(r){return i.post("/order/api/list",{role:r})}function e(){return i.post("/order/api/paidList")}function s(r){return i.post(`/order/api/view/order/${r}`)}function p(r){return i.post("/order/api/fellows",r)}export{p as f,t as l,e as p,s as v};
