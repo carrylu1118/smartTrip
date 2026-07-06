@@ -9,6 +9,7 @@
 .settings/
 .project
 .classpath
+.reasonix
 
 # ============================
 # Java / Maven / Backend
