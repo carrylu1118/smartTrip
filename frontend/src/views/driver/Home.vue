@@ -1,7 +1,8 @@
 <template>
   <div class="page-container">
-    <AppHeader title="司机端 - 黑马顺风车" @click-right="onSwitchRole">
-      <template #right><van-icon name="logistics" size="20" color="#FF6B35" /></template>
+    <AppHeader title="司机端 - 黑马顺风车" @click-left="onSwitchRole">
+      <template #left><van-icon name="logistics" size="20" color="#FF6B35" /></template>
+      <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
     </AppHeader>
 
     <div class="welcome">
@@ -27,6 +28,8 @@ function onSwitchRole() {
   auth.setRole(0)
   router.push('/passenger/home')
 }
+
+function goAiRoute() { router.push('/common/ai-route') }
 </script>
 
 <style scoped>

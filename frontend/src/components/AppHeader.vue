@@ -8,6 +8,9 @@
     @click-left="onClickLeft"
     @click-right="onClickRight"
   >
+    <template #left>
+      <slot name="left" />
+    </template>
     <template #right>
       <slot name="right" />
       <van-icon v-if="rightIcon" :name="rightIcon" size="20" @click="onClickRight" />

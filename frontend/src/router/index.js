@@ -205,6 +205,12 @@ const routes = [
     component: () => import('@/views/common/Ai.vue'),
     meta: { title: 'AI助手' },
   },
+  {
+    path: '/common/ai-route',
+    name: 'AiRoute',
+    component: () => import('@/views/common/AiRoute.vue'),
+    meta: { title: '智能问路' },
+  },
 ]
 
 const router = createRouter({

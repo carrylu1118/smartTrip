@@ -1,7 +1,8 @@
 <template>
   <div class="page">
-    <AppHeader title="司机订单" @click-right="onSwitchRole">
-      <template #right><van-icon name="logistics" size="20" color="#FF6B35" /></template>
+    <AppHeader title="司机订单" @click-left="onSwitchRole">
+      <template #left><van-icon name="logistics" size="20" color="#FF6B35" /></template>
+      <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
     </AppHeader>
     <div class="content">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
@@ -45,6 +46,8 @@ const loading = ref(true)
 const refreshing = ref(false)
 
 function onSwitchRole() { auth.setRole(0); router.push('/passenger/order') }
+
+function goAiRoute() { router.push('/common/ai-route') }
 
 const orderStatusMap = { 0: '临时订单', 1: '未支付', 2: '已支付' }
 const statusClassMap = { 0: 's-pending', 1: 's-unpaid', 2: 's-paid' }

@@ -1,7 +1,8 @@
 <template>
   <div class="page">
-    <AppHeader title="司机行程" @click-right="onSwitchRole">
-      <template #right><van-icon name="logistics" size="20" color="#FF6B35" /></template>
+    <AppHeader title="司机行程" @click-left="onSwitchRole">
+      <template #left><van-icon name="logistics" size="20" color="#FF6B35" /></template>
+      <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
     </AppHeader>
     <div class="content">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
@@ -39,6 +40,8 @@ const loading = ref(true)
 const refreshing = ref(false)
 
 function onSwitchRole() { auth.setRole(0); router.push('/passenger/trip') }
+
+function goAiRoute() { router.push('/common/ai-route') }
 
 const statusMap = { 0: '邀请中', 1: '已发车', 3: '已送达' }
 const statusClassMap = { 0: 'status-inviting', 1: 'status-departed', 3: 'status-delivered' }

@@ -1,7 +1,8 @@
 <template>
   <div class="page-container">
-    <AppHeader title="乘客行程" @click-right="onSwitchRole">
-      <template #right><van-icon name="user-o" size="20" color="#FF6B35" /></template>
+    <AppHeader title="乘客行程" @click-left="onSwitchRole">
+      <template #left><van-icon name="user-o" size="20" color="#FF6B35" /></template>
+      <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
     </AppHeader>
 
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh" style="min-height: 70vh">
@@ -42,6 +43,8 @@ function onSwitchRole() {
   const newRole = auth.currentRole == 0 ? 1 : 0
   doSwitch(newRole)
 }
+
+function goAiRoute() { router.push('/common/ai-route') }
 
 async function doSwitch(newRole) {
   if (newRole === 1) {

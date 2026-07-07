@@ -1,7 +1,8 @@
 <template>
   <div class="page-container">
-    <AppHeader title="乘客端 - 黑马顺风车" :show-back="false" @click-right="onSwitchRole">
-      <template #right><van-icon name="user-o" size="20" color="#FF6B35" /></template>
+    <AppHeader title="乘客端 - 黑马顺风车" :show-back="false" @click-left="onSwitchRole">
+      <template #left><van-icon name="user-o" size="20" color="#FF6B35" /></template>
+      <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
     </AppHeader>
 
     <div class="welcome">
@@ -41,6 +42,8 @@ async function doSwitch(newRole) {
   auth.setRole(newRole)
   router.push(newRole === 1 ? '/driver/home' : '/passenger/home')
 }
+
+function goAiRoute() { router.push('/common/ai-route') }
 </script>
 
 <style scoped>
