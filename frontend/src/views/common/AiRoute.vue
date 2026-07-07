@@ -118,29 +118,28 @@ async function send() {
   inputText.value = ''
   scrollToBottom()
 
-  // 先插入占位 AI 气泡，流式填充
-  const aiMsg = { role: 'assistant', content: '', conversationId: conversationId.value }
-  messages.value.push(aiMsg)
+  // 插入占位 AI 气泡，必须通过 reactive 数组索引访问才能触发 UI 更新
+  messages.value.push({ role: 'assistant', content: '', conversationId: conversationId.value })
+  const aiIdx = messages.value.length - 1
   sending.value = true
 
   aiApi.sendMessageStream(
     { conversationId: conversationId.value, message: text },
-    // onToken: 逐字追加
+    // onToken: 逐字追加 — 通过 messages.value[aiIdx] 修改 reactive 代理
     (token) => {
-      aiMsg.content += token
+      messages.value[aiIdx].content += token
       scrollToBottom()
     },
     // onDone: 流结束
     (newCid) => {
       if (newCid) conversationId.value = newCid
-      aiMsg.conversationId = conversationId.value
-      if (!aiMsg.content) aiMsg.content = '(空回复)'
+      if (!messages.value[aiIdx].content) messages.value[aiIdx].content = '(空回复)'
       sending.value = false
       scrollToBottom()
     },
     // onError
     () => {
-      aiMsg.content = aiMsg.content || '网络异常，请检查连接后重试。'
+      messages.value[aiIdx].content = messages.value[aiIdx].content || '网络异常，请检查连接后重试。'
       sending.value = false
       scrollToBottom()
     }
