@@ -72,6 +72,10 @@ export function sendMessageStream(data, onToken, onDone, onError) {
               const meta = JSON.parse(content)
               onDone(meta.conversationId)
             } catch { onDone('') }
+          } else if (content.startsWith('[DONE:')) {
+            // Flux<String> 流结束标记: data:[DONE:conversationId]
+            const cid = content.slice(6, -1)
+            onDone(cid)
           } else {
             onToken(content)
           }

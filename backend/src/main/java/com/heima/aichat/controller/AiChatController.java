@@ -10,17 +10,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-/**
- * AI 聊天接口 — 供前端「智能问路」页面调用
- */
 @RestController
 @RequestMapping("/ai/chat")
 @Api(value = "AI聊天Controller", tags = {"AI聊天"})
@@ -31,11 +27,7 @@ public class AiChatController {
     @Autowired
     private AiChatService aiChatService;
 
-    private final ExecutorService executor = Executors.newCachedThreadPool();
-
-    /**
-     * 发送消息，获取 AI 回复（非流式，兼容保留）
-     */
+    /** 非流式（保留） */
     @ApiOperation(value = "AI对话接口", tags = {"AI聊天"})
     @PostMapping
     public ResponseVO chat(@RequestBody Map<String, String> body, HttpServletRequest request) {
@@ -43,22 +35,15 @@ public class AiChatController {
         if (message == null || message.trim().isEmpty()) {
             return ResponseVO.error("消息不能为空");
         }
-
         String conversationId = body.get("conversationId");
         String userId = getUserId(request);
-
         log.info("AI chat: userId={}, conversationId={}, message={}", userId, conversationId, message);
-
         Map<String, Object> result = aiChatService.chat(conversationId, userId, message.trim());
         return ResponseVO.success(result);
     }
 
     /**
-     * 流式 AI 对话 — SSE (Server-Sent Events)
-     *
-     * <p>请求体同 POST /ai/chat，响应为 text/event-stream
-     * <p>每个 data 事件为一个 token 文本
-     * <p>done 事件表示流结束，data 含 conversationId
+     * 流式 AI 对话 — SseEmitter 逐 token 推送
      */
     @ApiOperation(value = "AI流式对话(SSE)", tags = {"AI聊天"})
     @PostMapping("/stream")
@@ -76,29 +61,30 @@ public class AiChatController {
 
         SseEmitter emitter = new SseEmitter(120000L);
 
-        executor.execute(() -> {
-            try {
-                aiChatService.chatStream(conversationId, userId, message.trim(),
-                    token -> safeSend(emitter, SseEmitter.event().data(token)),
-                    fullReply -> {
-                        safeSend(emitter, SseEmitter.event().name("done")
-                                .data("{\"conversationId\":\"" + (conversationId == null ? "" : conversationId) + "\"}"));
+        Flux<String> flux = aiChatService.chatStream(conversationId, userId, message.trim());
+
+        // subscribe 是非阻塞的，回调跑在 DashScope Flowable 自己的线程上
+        flux.subscribe(
+            token -> {
+                try {
+                    if (token.startsWith("[DONE:")) {
+                        String cid = token.substring(6, token.length() - 1);
+                        emitter.send(SseEmitter.event().name("done").data("{\"conversationId\":\"" + cid + "\"}"));
                         emitter.complete();
-                    },
-                    emitter::completeWithError
-                );
-            } catch (Exception e) {
-                log.error("Stream error", e);
-                emitter.completeWithError(e);
-            }
-        });
+                    } else {
+                        emitter.send(SseEmitter.event().data(token));
+                    }
+                } catch (IOException e) {
+                    emitter.completeWithError(e);
+                }
+            },
+            error -> emitter.completeWithError(error),
+            () -> {} // 正常情况由 [DONE:] token 触发 complete
+        );
 
         return emitter;
     }
 
-    /**
-     * 获取会话历史消息
-     */
     @ApiOperation(value = "获取会话历史", tags = {"AI聊天"})
     @GetMapping("/history/{conversationId}")
     public ResponseVO history(@PathVariable String conversationId) {
@@ -106,9 +92,6 @@ public class AiChatController {
         return ResponseVO.success(messages);
     }
 
-    /**
-     * 获取用户的所有会话ID列表
-     */
     @ApiOperation(value = "获取用户会话列表", tags = {"AI聊天"})
     @GetMapping("/conversations")
     public ResponseVO conversations(HttpServletRequest request) {
@@ -117,25 +100,12 @@ public class AiChatController {
         return ResponseVO.success(ids);
     }
 
-    /**
-     * 获取当前用户所有聊天记录（跨会话），时间倒序排列
-     */
     @ApiOperation(value = "获取用户全部聊天记录", tags = {"AI聊天"})
     @GetMapping("/messages")
     public ResponseVO allMessages(HttpServletRequest request) {
         String userId = getUserId(request);
         List<ChatMessagePO> messages = aiChatService.getAllHistory(userId);
         return ResponseVO.success(messages);
-    }
-
-    // ---- 内部 ----
-
-    private void safeSend(SseEmitter emitter, SseEmitter.SseEventBuilder event) {
-        try {
-            emitter.send(event);
-        } catch (IOException e) {
-            log.warn("SSE send failed", e);
-        }
     }
 
     private String getUserId(HttpServletRequest request) {
