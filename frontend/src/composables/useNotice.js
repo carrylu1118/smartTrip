@@ -26,30 +26,29 @@ function isOnChatPage() {
 export function addNoticeMsg(data) {
   if (!data) return
 
-  // 去重：同一发送者 + 同一内容
-  const dup = messages.value.find(
-    m => m.senderId === data.senderId && m.message === data.message
+  // 用发送者+内容+时间组合去重
+  const key = `${data.senderId || ''}_${data.tripId || ''}_${data.message || data.content || ''}_${Date.now()}`
+  const exists = messages.value.some(m =>
+    m.senderId === (data.senderId || '') &&
+    (m.message || '') === (data.message || data.content || '') &&
+    m.tripId === (data.tripId || '')
   )
-  if (!dup) {
-    messages.value.push({
-      senderId: data.senderId || '',
-      senderUseralias: data.senderUseralias || '',
-      message: data.message || data.content || '',
-      tripId: data.tripId || '',
-      time: data.timestamp || new Date().toISOString(),
-    })
-  }
+  if (exists) return
+
+  messages.value.push({
+    _key: key,
+    senderId: data.senderId || '',
+    senderUseralias: data.senderUseralias || '',
+    message: data.message || data.content || '',
+    tripId: data.tripId || '',
+    time: data.timestamp || new Date().toISOString(),
+  })
   unreadCount.value = messages.value.length
   persist()
 
   // 不在聊天页时弹出提示
   if (!isOnChatPage()) {
-    const who = data.senderUseralias || '有人'
-    showToast({
-      message: `${who}发来新消息`,
-      duration: 2000,
-      position: 'top',
-    })
+    showToast({ message: `${data.senderUseralias || '有人'}发来新消息`, duration: 2000, position: 'top' })
   }
 }
 

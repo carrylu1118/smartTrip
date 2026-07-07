@@ -91,16 +91,14 @@ function initWebSocket() {
   ws.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data)
-      // 同步到全局消息列表
-      addNoticeMsg(data)
-      // 只追加属于当前会话的消息（对方发来的）
-      if (
-        data &&
-        data.senderId !== currentUserId &&
-        String(data.receiverId || '') === String(currentUserId)
-      ) {
+      // 只处理当前会话的对方消息
+      if (data.senderId !== currentUserId
+          && String(data.receiverId || '') === String(currentUserId)) {
         messages.value.push(data)
         scrollToBottom()
+      } else if (data.senderId !== currentUserId) {
+        // 跨会话消息：只同步到全局通知列表
+        addNoticeMsg(data)
       }
     } catch {
       // 非 JSON 消息忽略
