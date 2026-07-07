@@ -30,7 +30,8 @@
 
         <div :class="['chat-bubble', isUser(msg.role) ? 'bubble-user' : 'bubble-ai']">
           <div v-if="!isUser(msg.role)" class="avatar-ai">🤖</div>
-          <div class="bubble-content">{{ msg.content }}</div>
+          <div v-if="isUser(msg.role)" class="bubble-content">{{ msg.content }}</div>
+          <div v-else class="bubble-content" v-html="renderMd(msg.content)"></div>
           <div v-if="isUser(msg.role)" class="avatar-user">👤</div>
         </div>
       </template>
@@ -68,6 +69,22 @@ const chatList = ref(null)
 
 function isUser(role) {
   return role === 'user'
+}
+
+function renderMd(text) {
+  if (!text) return ''
+  let html = text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
+  html = html.replace(/^### (.+)$/gm, '<h4>$1</h4>')
+  html = html.replace(/^## (.+)$/gm, '<h3>$1</h3>')
+  html = html.replace(/^- (.+)$/gm, '<li>$1</li>')
+  html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+  html = html.replace(/((?:<li>.*?<\/li>\n?)+)/g, '<ul>$1</ul>')
+  html = html.replace(/\n\n/g, '<br><br>')
+  html = html.replace(/\n/g, '<br>')
+  return html
 }
 
 function formatConvTime(t) {
@@ -252,6 +269,15 @@ onMounted(() => {
   color: #1A1A2E;
   border-bottom-left-radius: 4px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+/* AI Markdown 渲染 */
+.bubble-ai .bubble-content :deep(strong) { font-weight: 700; }
+.bubble-ai .bubble-content :deep(h3) { font-size: 15px; font-weight: 700; margin: 8px 0 4px; }
+.bubble-ai .bubble-content :deep(h4) { font-size: 14px; font-weight: 700; margin: 6px 0 2px; }
+.bubble-ai .bubble-content :deep(ul) { padding-left: 16px; margin: 4px 0; }
+.bubble-ai .bubble-content :deep(li) { margin: 2px 0; }
+.bubble-ai .bubble-content :deep(code) {
+  background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; font-size: 13px; font-family: monospace;
 }
 .bubble-user .bubble-content {
   background: linear-gradient(135deg, #FF6B35, #FF8A5C);
