@@ -8,7 +8,7 @@
 
     <div v-else class="msg-list">
       <div
-        v-for="(msg, idx) in messages"
+        v-for="(msg, idx) in reversedMessages"
         :key="idx"
         class="msg-item"
         @click="goChat(msg)"
@@ -21,7 +21,7 @@
           name="delete-o"
           size="18"
           color="#999"
-          @click.stop="handleDelete(idx)"
+          @click.stop="handleDelete(msg)"
           class="msg-delete"
         />
       </div>
@@ -33,6 +33,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { computed } from 'vue'
 import AppHeader from '@/components/AppHeader.vue'
 import TabBar from '@/components/TabBar.vue'
 import { useNoticeMessages, removeNoticeMsg } from '@/composables/useNotice'
@@ -40,6 +41,7 @@ import { useNoticeMessages, removeNoticeMsg } from '@/composables/useNotice'
 const router = useRouter()
 
 const { messages, unreadCount } = useNoticeMessages()
+const reversedMessages = computed(() => [...messages.value].reverse())
 
 function goChat(msg) {
   const senderId = msg.senderId || ''
@@ -49,8 +51,9 @@ function goChat(msg) {
   }
 }
 
-function handleDelete(idx) {
-  removeNoticeMsg(idx)
+function handleDelete(msg) {
+  const idx = messages.value.findIndex(m => m._key === msg._key)
+  if (idx >= 0) removeNoticeMsg(idx)
 }
 </script>
 
