@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.heima.aichat.mapper.ChatMessageMapper">
+
+    <resultMap id="BaseResultMap" type="com.heima.aichat.entity.ChatMessagePO">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="conversation_id" jdbcType="VARCHAR" property="conversationId"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="role" jdbcType="VARCHAR" property="role"/>
+        <result column="content" jdbcType="LONGVARCHAR" property="content"/>
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.heima.aichat.entity.ChatMessagePO">
+        INSERT INTO t_chat_message (id, conversation_id, user_id, role, content, created_time)
+        VALUES (#{id}, #{conversationId}, #{userId}, #{role}, #{content}, #{createdTime})
+    </insert>
+
+    <select id="selectByConversationId" resultMap="BaseResultMap">
+        SELECT id, conversation_id, user_id, role, content, created_time
+        FROM t_chat_message
+        WHERE conversation_id = #{conversationId}
+        ORDER BY created_time ASC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectConversationIdsByUser" resultType="java.lang.String">
+        SELECT DISTINCT conversation_id
+        FROM t_chat_message
+        WHERE user_id = #{userId}
+        ORDER BY MAX(created_time) DESC
+    </select>
+
+    <delete id="deleteByConversationId">
+        DELETE FROM t_chat_message WHERE conversation_id = #{conversationId}
+    </delete>
+
+    <select id="selectAllByUserId" resultMap="BaseResultMap">
+        SELECT id, conversation_id, user_id, role, content, created_time
+        FROM t_chat_message
+        WHERE user_id = #{userId}
+        ORDER BY created_time DESC
+    </select>
+
+</mapper>

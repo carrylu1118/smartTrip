@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <AppHeader title="司机端 - 黑马顺风车" @click-left="onSwitchRole">
+    <AppHeader title="司机端 - 智驾游" @click-left="onSwitchRole">
       <template #left><van-icon name="logistics" size="20" color="#FF6B35" /></template>
       <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
     </AppHeader>

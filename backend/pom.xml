@@ -10,7 +10,7 @@
         <version>2.2.5.RELEASE</version>
         <relativePath/>
     </parent>
-    
+
     <groupId>com.heima</groupId>
     <artifactId>hitch-allinone</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -107,8 +107,6 @@
             <artifactId>hibernate-validator</artifactId>
             <version>7.0.1.Final</version>
         </dependency>
-
-
 
         <!--健康检查依赖-->
         <dependency>
@@ -219,6 +217,13 @@
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>4.12.0</version>
+        </dependency>
+
+        <!-- 通义千问 DashScope SDK -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dashscope-sdk-java</artifactId>
+            <version>2.16.7</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>

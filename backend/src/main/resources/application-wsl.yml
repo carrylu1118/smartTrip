@@ -66,3 +66,12 @@ baidu:
   map:
     ak: MkIZ2ME6zhPNU1o3BnIzq38Vo38WPz8X
     api: https://api.map.baidu.com/routematrix/v2/driving
+
+# AI 通义千问配置
+ai:
+  dashscope:
+    api-key: ${DASHSCOPE_API_KEY:your-dashscope-api-key}
+  chat:
+    model: qwen-plus
+    temperature: 0.7
+    max-tokens: 2000

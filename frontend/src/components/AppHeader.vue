@@ -22,7 +22,7 @@
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
-  title: { type: String, default: '黑马顺风车' },
+  title: { type: String, default: '智驾游' },
   leftText: { type: String, default: '' },
   showBack: { type: Boolean, default: false },
   fixed: { type: Boolean, default: true },

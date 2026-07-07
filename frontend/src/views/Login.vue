@@ -4,7 +4,7 @@
     <div class="login-header">
       <div class="header-logo">
         <van-icon name="logistics" size="48" color="#fff" />
-        <h1 class="header-title">黑马顺风车</h1>
+        <h1 class="header-title">智驾游</h1>
         <p class="header-subtitle">安全 · 便捷 · 信赖</p>
       </div>
     </div>
@@ -125,7 +125,7 @@
 
     <!-- 底部版权 -->
     <div class="login-footer">
-      <p>© 2024 黑马顺风车 All Rights Reserved</p>
+      <p>© 2024 智驾游 All Rights Reserved</p>
     </div>
   </div>
 </template>

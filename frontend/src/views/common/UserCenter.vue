@@ -35,7 +35,6 @@
           <span v-if="unreadCount > 0" class="unread-dot"></span>
         </template>
       </van-cell>
-      <van-cell title="智能问路" is-link to="/common/ai" icon="chat-o" />
     </van-cell-group>
 
     <!-- 退出登录 -->

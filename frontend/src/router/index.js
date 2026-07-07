@@ -219,7 +219,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  document.title = to.meta.title ? `${to.meta.title} - 黑马顺风车` : '黑马顺风车'
+  document.title = to.meta.title ? `${to.meta.title} - 智驾游` : '智驾游'
 
   if (to.path === '/login') {
     return next()
