@@ -63,17 +63,16 @@ export function sendMessageStream(data, onToken, onDone, onError) {
 
       let eventName = ''
       for (const line of lines) {
-        if (line.startsWith('event: ')) {
-          eventName = line.slice(7).trim()
-        } else if (line.startsWith('data: ')) {
-          const content = line.slice(6)
+        if (line.startsWith('event:')) {
+          eventName = line.slice(6).trim()
+        } else if (line.startsWith('data:')) {
+          const content = line.slice(5)
           if (eventName === 'done') {
             try {
               const meta = JSON.parse(content)
               onDone(meta.conversationId)
             } catch { onDone('') }
           } else if (content.startsWith('[DONE:')) {
-            // Flux<String> 流结束标记: data:[DONE:conversationId]
             const cid = content.slice(6, -1)
             onDone(cid)
           } else {
