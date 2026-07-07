@@ -37,7 +37,6 @@
             <div class="passenger-meta">
               <span>顺路度 {{ Number(p.suitability || 0).toFixed(2) }}%</span>
               <span>{{ p._diffDate }}</span>
-              <span>{{ p.quantity }}座</span>
             </div>
           </div>
         </div>
@@ -161,14 +160,14 @@ const goChat = (inviteeTripId) => { router.push({ path: '/message', query: { t: 
 .invite-card { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .invite-info { flex: 1; min-width: 0; }
 .invite-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
-.invite-route { font-size: 12px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.invite-route { font-size: 12px; color: #666; word-break: break-all; }
 
 /* 同行乘客 + 顺路乘客 */
 .passenger-card { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
 .passenger-top { display: flex; gap: 10px; flex: 1; cursor: pointer; min-width: 0; }
 .passenger-info { flex: 1; min-width: 0; }
 .passenger-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.passenger-route { font-size: 12px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 4px; }
+.passenger-route { font-size: 12px; color: #666; word-break: break-all; margin-bottom: 4px; }
 .passenger-meta { font-size: 11px; color: #999; display: flex; gap: 10px; }
 .passenger-action { flex-shrink: 0; margin-left: 10px; }
 

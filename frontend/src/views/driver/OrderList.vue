@@ -20,17 +20,17 @@
             <span class="time">{{ formatDate(item.createdTime) }}</span>
           </div>
           <div class="card-body">
-            <div class="body-row"><span class="label">乘客</span><span class="value">{{ item.passengerUseralias || '—' }}</span></div>
-            <div class="body-row"><span class="label">起终点</span>
-              <span class="value" style="line-height:1.6">
+            <div class="body-row"><span class="value text-bold">{{ item.passengerUseralias || '—' }}</span></div>
+            <div class="body-row">
+              <span class="value" style="line-height:1.6; text-align:left; max-width:100%">
                 <div>🟢 {{ item.passengerStartAddr }}</div>
                 <div>🔴 {{ item.passengerEndAddr }}</div>
               </span>
             </div>
-            <div class="body-row"><span class="label">费用</span><span class="value price">¥{{ item.cost || 0 }}</span></div>
+            <div class="body-row"><span class="value price">¥{{ item.cost || 0 }}</span></div>
           </div>
           <div class="card-footer">
-            <van-button size="small" round plain type="primary" @click="goChat(item.passengerStrokeId)">联系ta</van-button>
+            <van-button size="small" round type="primary" color="#667eea" @click="goChat(item.passengerStrokeId)">💬 联系ta</van-button>
             <van-button v-if="item.status == 1" size="small" round type="primary" color="#4caf50" @click="onConfirmPay(item)">到款确认</van-button>
           </div>
         </div>

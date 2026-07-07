@@ -20,7 +20,7 @@
         <van-image round width="48" height="48" :src="inv.avatar || 'https://img.yzcdn.cn/vant/cat.jpeg'" />
         <div class="flex-1" style="margin-left: 12px">
           <div class="flex-between">
-            <span class="text-bold">{{ inv.nickName || '车主' }}</span>
+            <span class="text-bold">{{ inv.nickName || inv.useralias || inv.driverUseralias || '司机' }}</span>
             <span :style="{ color: invStatusColor(inv.status) }" class="text-sm text-bold">
               {{ invStatusLabel(inv.status) }}
             </span>
@@ -54,7 +54,7 @@
             <span class="text-primary-color text-bold">顺路 {{ Number(d.suitability || 0).toFixed(2) }}%</span>
           </div>
           <div class="text-sm text-secondary mt-sm">起: {{ d.startAddr }} ({{ d.startDistance }}km) → 终: {{ d.endAddr }} ({{ d.endDistance }}km)</div>
-          <div class="text-sm text-hint mt-sm">时间差: {{ d._diffDate }} | {{ d.quantity }}座</div>
+          <div class="text-sm text-hint mt-sm">时间差: {{ d._diffDate }} | 剩{{ d.quantity }}座</div>
         </div>
       </div>
     </div>
@@ -118,7 +118,7 @@ async function onAccept(inv) {
   try {
     await showConfirmDialog({
       title: '确认同行',
-      message: `确定要接受 ${inv.nickName || '该车主'} 的邀请吗？`,
+      message: `确定要接受 ${inv.nickName || inv.useralias || '该司机'} 的邀请吗？`,
     })
   } catch { return }
 
@@ -146,7 +146,7 @@ async function onReject(inv) {
   try {
     await showConfirmDialog({
       title: '不合适',
-      message: `确定要拒绝 ${inv.nickName || '该车主'} 的邀请吗？`,
+      message: `确定要拒绝 ${inv.nickName || inv.useralias || '该司机'} 的邀请吗？`,
     })
   } catch { return }
 
