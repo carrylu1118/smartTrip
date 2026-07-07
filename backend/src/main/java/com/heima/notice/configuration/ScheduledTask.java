@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.websocket.Session;
+import jakarta.annotation.PostConstruct;
+import jakarta.websocket.Session;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

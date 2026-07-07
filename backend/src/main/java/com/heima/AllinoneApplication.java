@@ -5,6 +5,7 @@ import com.heima.commons.utils.SpringUtil;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Import;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
@@ -14,13 +15,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableRequestInital
 @MapperScan({"com.heima.storage.mapper", "com.heima.aichat.mapper"})
 @Import(SpringUtil.class)
-//开启缓存注解
 @EnableCaching
 @EnableTransactionManagement
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds = -1)
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 86400)
+@ServletComponentScan
 public class AllinoneApplication {
     public static void main(String[] args) {
         SpringApplication.run(AllinoneApplication.class, args);
-
     }
 }

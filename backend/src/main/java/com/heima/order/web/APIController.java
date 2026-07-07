@@ -6,51 +6,51 @@ import com.heima.commons.groups.Group;
 import com.heima.commons.initial.annotation.RequestInitial;
 import com.heima.modules.vo.OrderVO;
 import com.heima.order.handler.OrderHandler;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController("order")
 @RequestMapping("/order/api/")
-@Api(value = "订单操作Controller", tags = {"订单管理"})
-@ApiResponses(@ApiResponse(code = 200, message = "处理成功"))
+@Tag(name = "订单操作Controller")
+@ApiResponses(@ApiResponse(responseCode = "200", description = "处理成功"))
 public class APIController {
     @Autowired
     private OrderHandler orderHandler;
 
 
-    @ApiOperation(value = "订单列表", tags = {"订单管理"})
+    @Operation(summary = "订单列表")
     @PostMapping("/list")
     @RequestInitial(groups = {Group.Select.class})
     public ResponseVO<OrderVO> list(@RequestBody OrderVO orderVO) {
         return orderHandler.list(orderVO);
     }
 
-    @ApiOperation(value = "生成订单影子", tags = {"订单管理"})
+    @Operation(summary = "生成订单影子")
     @PostMapping("/generateShadow")
     public ResponseVO<OrderVO> generateShadow() {
         return orderHandler.generateShadow();
     }
 
 
-    @ApiOperation(value = "已支付订单列表", tags = {"订单管理"})
+    @Operation(summary = "已支付订单列表")
     @PostMapping("/paidList")
     public ResponseVO<OrderVO> paidList() {
         return orderHandler.paidList();
     }
 
 
-    @ApiOperation(value = "同行乘客列表", tags = {"订单管理"})
+    @Operation(summary = "同行乘客列表")
     @PostMapping("/fellows")
     @RequestInitial(groups = {Group.Select.class})
     public ResponseVO<OrderVO> fellows(@RequestBody OrderVO orderVO) {
         return orderHandler.fellows(orderVO);
     }
 
-    @ApiOperation(value = "根据乘客查看订单信息", tags = {"订单管理"})
+    @Operation(summary = "根据乘客查看订单信息")
     @PostMapping("/view/order/{tripid}")
     public ResponseVO<OrderVO> viewOrder(@PathVariable("tripid") String tripid) {
         return orderHandler.viewOrder(tripid);

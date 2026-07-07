@@ -6,7 +6,7 @@ import com.heima.commons.groups.Group;
 import com.heima.commons.initial.annotation.InitialResolver;
 import com.heima.modules.po.OrderPO;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.Date;
 
 public class OrderVO implements VO {

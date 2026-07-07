@@ -1,7 +1,8 @@
 package com.heima.configuration;
 
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
-import io.minio.org.apache.commons.validator.routines.InetAddressValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -10,12 +11,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 import java.net.InetAddress;
+import java.util.regex.Pattern;
 
 @Configuration
 @ConfigurationProperties(prefix = "minio")
 public class MinioConfig {
     final static Logger logger = LoggerFactory.getLogger(MinioConfig.class);
-    
+    private static final Pattern IP_PATTERN =
+            Pattern.compile("^(\\d{1,3}\\.){3}\\d{1,3}$");
+
     private static String host;
     private static String port;
     private static String bucket;
@@ -25,77 +29,37 @@ public class MinioConfig {
 
     @Bean
     @Lazy
-//    @ConditionalOnProperty(name = "ruoyi.uploadType", havingValue = "minio")
     public MinioClient minioClient() throws Exception {
-        //minio的初始化存在一个小问题，endpoint必须是ip形式，不能是host
-        if (!InetAddressValidator.getInstance().isValid(host)){
-            logger.warn("MinIO:host is not format as ip，change it！");
+        if (!IP_PATTERN.matcher(host).matches()) {
+            logger.warn("MinIO: host is not an IP, resolving...");
             InetAddress inetAddress = InetAddress.getByName(host);
             host = inetAddress.getHostAddress();
-            logger.info("MinIO:host change to : {}" , host);
+            logger.info("MinIO: host resolved to {}", host);
         }
-        MinioClient minioClient = new MinioClient(host,
-                Integer.valueOf(port),
-                username,
-                password,false);
+        MinioClient minioClient = MinioClient.builder()
+                .endpoint(host, Integer.parseInt(port), false)
+                .credentials(username, password)
+                .build();
 
-//        logger.info("minio connected, buckets="+minioClient.listBuckets());
-
-        boolean found = minioClient.bucketExists(bucket);
+        boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
         if (!found) {
-            // 创建桶
-            minioClient.makeBucket(bucket);
+            minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
         }
-        logger.info("MinIO:bucket init ok , bucket={}" , bucket);
+        logger.info("MinIO: bucket init ok, bucket={}", bucket);
         return minioClient;
     }
 
+    public static String getHost() { return host; }
+    public static String getPort() { return port; }
+    public static String getBucket() { return bucket; }
+    public static String getUsername() { return username; }
+    public static String getPassword() { return password; }
+    public static String getUrl() { return url; }
 
-    public static String getHost() {
-        return host;
-    }
-
-    public static String getPort() {
-        return port;
-    }
-
-    public static String getBucket() {
-        return bucket;
-    }
-
-    public static String getUsername() {
-        return username;
-    }
-
-    public static String getPassword() {
-        return password;
-    }
-
-    public static String getUrl() {
-        return url;
-    }
-
-    public void setHost(String host) {
-        MinioConfig.host = host;
-    }
-
-    public void setPort(String port) {
-        MinioConfig.port = port;
-    }
-
-    public void setBucket(String bucket) {
-        MinioConfig.bucket = bucket;
-    }
-
-    public void setUsername(String username) {
-        MinioConfig.username = username;
-    }
-
-    public void setPassword(String password) {
-        MinioConfig.password = password;
-    }
-
-    public void setUrl(String url) {
-        MinioConfig.url = url;
-    }
+    public void setHost(String host) { MinioConfig.host = host; }
+    public void setPort(String port) { MinioConfig.port = port; }
+    public void setBucket(String bucket) { MinioConfig.bucket = bucket; }
+    public void setUsername(String username) { MinioConfig.username = username; }
+    public void setPassword(String password) { MinioConfig.password = password; }
+    public void setUrl(String url) { MinioConfig.url = url; }
 }

@@ -8,6 +8,7 @@ import com.heima.modules.po.AttachmentPO;
 import com.heima.configuration.MinioConfig;
 import com.heima.storage.mapper.AttachmentMapper;
 import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,12 @@ public class AttachmentHandler {
         String name = System.currentTimeMillis()+"-"+file.getOriginalFilename();
         try {
             minioClient.putObject(
-                    MinioConfig.getBucket(), name,file.getInputStream(),file.getSize(),null,null, file.getContentType()
+                    PutObjectArgs.builder()
+                            .bucket(MinioConfig.getBucket())
+                            .object(name)
+                            .stream(file.getInputStream(),file.getSize(),-1)
+                            .contentType(file.getContentType())
+                            .build()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -11,18 +11,18 @@ import com.heima.modules.vo.PaymentVO;
 import com.heima.payment.handler.PaymentHandler;
 import com.heima.storage.service.AccountAPIService;
 import com.heima.storage.service.OrderAPIService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController("payment")
 @RequestMapping("/payment/api/")
-@Api(value = "支付操作Controller", tags = {"支付管理"})
-@ApiResponses(@ApiResponse(code = 200, message = "处理成功"))
+@Tag(name = "支付操作Controller")
+@ApiResponses(@ApiResponse(responseCode = "200", description = "处理成功"))
 public class  APIController {
     @Autowired
     private PaymentHandler paymentHandler;
@@ -37,7 +37,7 @@ public class  APIController {
      *
      * @return
      */
-    @ApiOperation(value = "调取支付信息", tags = {"支付管理"})
+    @Operation(summary = "调取支付信息")
     @PostMapping("/payment")
     @RequestInitial(groups = Group.Create.class)
     public ResponseVO<PaymentVO> payment(@RequestBody PaymentVO paymentVO) throws Exception {
@@ -47,7 +47,7 @@ public class  APIController {
         return ResponseVO.success(paymentVO);
     }
 
-    @ApiOperation(value = "确认到款", tags = {"支付管理"})
+    @Operation(summary = "确认到款")
     @PostMapping("/confirmPay/{orderId}")
     @RequestInitial(groups = Group.Create.class)
     public ResponseVO<PaymentVO> confirmPay(@PathVariable String orderId) throws Exception {
@@ -67,7 +67,7 @@ public class  APIController {
 
 
 
-    @ApiOperation(value = "支付查询接口API", tags = {"支付管理"})
+    @Operation(summary = "支付查询接口API")
     @PostMapping("/query")
     @RequestInitial(groups = Group.Select.class)
     public ResponseVO<OrderVO> orderQuery(@RequestBody PaymentVO paymentVO) throws Exception {

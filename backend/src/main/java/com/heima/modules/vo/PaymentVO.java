@@ -8,8 +8,8 @@ import com.heima.commons.groups.Group;
 import com.heima.commons.initial.annotation.InitialResolver;
 import com.heima.modules.po.PaymentPO;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.Date;
 
 public class PaymentVO implements VO {

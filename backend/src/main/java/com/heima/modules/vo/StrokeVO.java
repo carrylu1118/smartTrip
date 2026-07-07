@@ -6,8 +6,8 @@ import com.heima.commons.groups.Group;
 import com.heima.commons.initial.annotation.InitialResolver;
 import com.heima.modules.po.StrokePO;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 public class StrokeVO implements VO {

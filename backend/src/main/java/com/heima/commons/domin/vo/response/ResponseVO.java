@@ -8,7 +8,7 @@ import com.heima.commons.enums.ResponseState;
 import com.heima.commons.exception.BusinessRuntimeException;
 import com.heima.commons.utils.CommonsUtils;
 import com.heima.commons.utils.LocalCollectionUtils;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
 import java.util.List;
@@ -88,9 +88,9 @@ public class ResponseVO<T> implements Serializable {
     }
 
 
-    @ApiModelProperty(value = "错误码")
+    @Schema(description = "错误码")
     private int code;
-    @ApiModelProperty(value = "返回数据")
+    @Schema(description = "返回数据")
     private List<Object> data = null;
     private String message;
 

@@ -3,10 +3,10 @@ package com.heima.storage.web;
 import com.heima.commons.domin.vo.response.ResponseVO;
 import com.heima.modules.po.AttachmentPO;
 import com.heima.storage.handler.AttachmentHandler;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -15,8 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController("storage")
 @RequestMapping("/storage/api/")
-@Api(value = "文件操作Controller", tags = {"文件管理"})
-@ApiResponses(@ApiResponse(code = 200, message = "处理成功"))
+@Tag(name = "文件操作Controller")
+@ApiResponses(@ApiResponse(responseCode = "200", description = "处理成功"))
 public class APIController {
 
 
@@ -24,7 +24,7 @@ public class APIController {
     private AttachmentHandler attachmentHandler;
 
 
-    @ApiOperation(value = "文件上传接口", tags = {"文件管理"})
+    @Operation(summary = "文件上传接口")
     @PostMapping("/upload")
     public ResponseVO<AttachmentPO> upload(@RequestParam("file") MultipartFile file) throws Exception {
         return attachmentHandler.uploadFile(file);
