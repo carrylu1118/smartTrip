@@ -14,31 +14,42 @@ function persist() {
   } catch { /* ignore */ }
 }
 
+function isOnChatPage() {
+  return window.location.hash.startsWith('#/message')
+}
+
 // ---- 对外 API ----
 
 /**
- * 添加一条消息到全局列表（不弹 toast）
- * 供 Message.vue 聊天页收到 WebSocket 消息时同步调用
+ * 添加一条消息到全局列表
  */
 export function addNoticeMsg(data) {
   if (!data) return
 
-  const clean = { ...data }
-  delete clean.read
-  delete clean.receiverUseralias
-  delete clean.receiverId
-  delete clean.retripIdad
-  delete clean.vO
-  delete clean.tripId
-  delete clean.createdTime
-
+  // 去重：同一发送者 + 同一内容
   const dup = messages.value.find(
-    m => m.senderId === clean.senderId && m.message === clean.message
+    m => m.senderId === data.senderId && m.message === data.message
   )
   if (!dup) {
-    messages.value.push(clean)
-    unreadCount.value = messages.value.length
-    persist()
+    messages.value.push({
+      senderId: data.senderId || '',
+      senderUseralias: data.senderUseralias || '',
+      message: data.message || data.content || '',
+      tripId: data.tripId || '',
+      time: data.timestamp || new Date().toISOString(),
+    })
+  }
+  unreadCount.value = messages.value.length
+  persist()
+
+  // 不在聊天页时弹出提示
+  if (!isOnChatPage()) {
+    const who = data.senderUseralias || '有人'
+    showToast({
+      message: `${who}发来新消息`,
+      duration: 2000,
+      position: 'top',
+    })
   }
 }
 
@@ -49,7 +60,6 @@ export function initNoticeSocket() {
   const token = localStorage.getItem('SESSION_TOKEN_KEY')
   if (!token) return
 
-  // 从 localStorage 恢复已有消息
   try {
     const raw = localStorage.getItem('_msg')
     if (raw) {
@@ -75,11 +85,6 @@ export function initNoticeSocket() {
     try {
       const data = JSON.parse(event.data)
       addNoticeMsg(data)
-      showToast({
-        message: '您有新消息，请注意查看！',
-        duration: 2000,
-        position: 'top',
-      })
     } catch {
       // 非 JSON 消息忽略
     }

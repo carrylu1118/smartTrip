@@ -44,7 +44,8 @@ const { messages, unreadCount } = useNoticeMessages()
 function goChat(msg) {
   const senderId = msg.senderId || ''
   if (senderId) {
-    router.push(`/message?r=${senderId}`)
+    const t = msg.tripId ? `&t=${msg.tripId}` : ''
+    router.push(`/message?r=${senderId}${t}`)
   }
 }
 
