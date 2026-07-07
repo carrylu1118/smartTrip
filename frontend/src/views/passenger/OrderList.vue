@@ -19,7 +19,10 @@
         <span :style="{ color: orderStatusColor(order.status) }" class="text-bold">{{ orderStatusLabel(order.status) }}</span>
         <span class="text-sm text-hint">{{ formatTime(order.createdTime || order.departureTime) }}</span>
       </div>
-      <div class="mt-sm text-secondary">{{ order.passengerStartAddr || order.startAddr || '-' }} → {{ order.passengerEndAddr || order.endAddr || '-' }}</div>
+      <div class="mt-sm text-secondary">
+        <div>🟢 {{ order.passengerStartAddr || order.startAddr || '-' }}</div>
+        <div>🔴 {{ order.passengerEndAddr || order.endAddr || '-' }}</div>
+      </div>
       <div class="flex-between mt-sm">
         <span class="text-primary-color text-bold">¥{{ (order.cost || 0).toFixed(2) }}</span>
         <button v-if="order.status == 1" class="pay-btn" @click="goPay(order)">点我支付</button>

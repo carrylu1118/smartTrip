@@ -21,7 +21,12 @@
           </div>
           <div class="card-body">
             <div class="body-row"><span class="label">乘客</span><span class="value">{{ item.passengerUseralias || '—' }}</span></div>
-            <div class="body-row"><span class="label">起终点</span><span class="value">{{ item.passengerStartAddr }} → {{ item.passengerEndAddr }}</span></div>
+            <div class="body-row"><span class="label">起终点</span>
+              <span class="value" style="line-height:1.6">
+                <div>🟢 {{ item.passengerStartAddr }}</div>
+                <div>🔴 {{ item.passengerEndAddr }}</div>
+              </span>
+            </div>
             <div class="body-row"><span class="label">费用</span><span class="value price">¥{{ item.cost || 0 }}</span></div>
           </div>
           <div class="card-footer">
