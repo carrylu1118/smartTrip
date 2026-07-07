@@ -24,8 +24,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { showToast } from 'vant'
 import AppHeader from '@/components/AppHeader.vue'
 import TabBar from '@/components/TabBar.vue'
@@ -34,6 +34,7 @@ import * as strokeApi from '@/api/stroke'
 import { getUserInfo } from '@/api/account'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const list = ref([])
 const loading = ref(true)
@@ -78,6 +79,8 @@ async function fetchList() {
 }
 
 async function onRefresh() { refreshing.value = true; await fetchList(); refreshing.value = false }
+
+watch(() => route.fullPath, () => { fetchList() })
 
 onMounted(fetchList)
 </script>

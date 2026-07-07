@@ -71,19 +71,24 @@ async function onAction() {
   try {
     if (trip.value.status === 1) {
       const res = await strokeApi.hitchhiker(id)
-      if (res.code === 200) {
+      if (res.code === 200 || res.code === 0) {
         showToast('已确认上车')
         await loadTrip()
-      } else { showToast(res.message || res.msg || '操作失败') }
+      } else {
+        showToast(res.message || res.msg || '操作失败')
+      }
     } else if (trip.value.status === 2) {
       const res = await strokeApi.freeride(id)
-      if (res.code === 200) {
+      if (res.code === 200 || res.code === 0) {
         showToast('已确认下车')
-        router.push('/passenger/order')
-      } else { showToast(res.message || res.msg || '操作失败') }
+        setTimeout(() => router.push('/passenger/order'), 200)
+      } else {
+        showToast(res.message || res.msg || '操作失败')
+      }
     }
-  } catch { showToast('操作失败，请重试') }
-  finally { acting.value = false }
+  } catch {
+    showToast('操作失败，请重试')
+  } finally { acting.value = false }
 }
 
 async function loadTrip() {

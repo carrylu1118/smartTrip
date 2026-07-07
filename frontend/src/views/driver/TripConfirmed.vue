@@ -58,8 +58,8 @@ onMounted(async () => {
 })
 
 const onDelivery = async () => {
-  try { await strokeApi.delivery(id); showToast('已确认送达'); router.push(`/driver/trip-info/${id}`) }
-  catch {}
+  try { await strokeApi.delivery(id); showToast('已确认送达'); setTimeout(() => router.push(`/driver/trip-info/${id}`), 200) }
+  catch { showToast('操作失败，请重试') }
 }
 
 const goChat = (passengerStrokeId) => { router.push({ path: '/message', query: { t: passengerStrokeId } }) }

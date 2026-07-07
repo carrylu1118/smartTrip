@@ -215,7 +215,8 @@ async function onPublish() {
       localStorage.removeItem('time')
       localStorage.removeItem(PUBLISHING_FLAG)
       showPopup.value = false
-      router.push(`/${role.value}/trip`)
+      // 用 query 参数强制触发路由变化，确保行程列表重新加载
+      router.replace({ path: `/${role.value}/trip`, query: { _t: Date.now() } })
     } else {
       showToast(res.message || res.msg || '发布失败')
     }

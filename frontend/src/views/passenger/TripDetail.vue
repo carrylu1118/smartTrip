@@ -41,7 +41,7 @@
         </template>
       </div>
     </div>
-    <van-empty v-if="!inviteLoading && inviteList.length === 0" description="暂无邀请" />
+    <van-empty v-if="inviteList.length === 0" description="暂无邀请" />
 
     <div style="padding: 0 16px; margin-top: 12px"><h3 class="section-title">顺路车主</h3></div>
 
@@ -61,9 +61,6 @@
 
     <van-empty v-if="driverList.length === 0" description="暂无顺路车主" />
 
-    <div style="text-align: center; padding: 16px">
-      <router-link :to="`/passenger/trip-req/${route.params.id}`" class="invite-link">邀请我的 &gt;&gt;</router-link>
-    </div>
     <TabBar />
   </div>
 </template>
@@ -175,28 +172,39 @@ async function onReject(inv) {
 
 let pollTimer = null
 
-async function loadAll() {
+async function loadAll(silent) {
   const id = route.params.id
   try {
     const r = await strokeApi.detail(id)
-    if (r && r.data && r.data.length > 0) trip.value = r.data[0]
+    if (r && r.data && r.data.length > 0) {
+      const t = r.data[0]
+      // 仅状态变化时更新，避免无意义重渲染
+      if (!trip.value || trip.value.status !== t.status) trip.value = t
+    }
   } catch (e) {}
   try {
     const r = await strokeApi.itineraryList(id)
     if (r && r.data && Array.isArray(r.data)) {
       const tripTime = trip.value ? trip.value.departureTime : null
-      driverList.value = r.data.map(function(d) {
+      const list = r.data.map(function(d) {
         d._diffDate = tripTime && d.departureTime ? diffDate(tripTime, d.departureTime) : ''
         return d
       })
+      // 轮询时仅在列表内容变化时替换，避免闪动
+      if (!silent || !arraysEqual(driverList.value, list)) driverList.value = list
     }
   } catch (e) {}
   loadInvites()
 }
 
+function arraysEqual(a, b) {
+  if (!a || !b || a.length !== b.length) return false
+  return a.every((item, i) => item.id === b[i].id)
+}
+
 onMounted(() => {
   loadAll()
-  pollTimer = setInterval(loadAll, 1000)
+  pollTimer = setInterval(() => loadAll(true), 1000)
 })
 
 onBeforeUnmount(() => {
@@ -208,7 +216,6 @@ onBeforeUnmount(() => {
 .section-title { font-size: 15px; font-weight: 700; color: #1A1A2E; margin-bottom: 8px; }
 .driver-card { cursor: pointer; }
 .driver-card:active { background: #f9f9f9; }
-.invite-link { font-size: 14px; color: #FF6B35; text-decoration: underline; }
 .invite-card { /* base */ }
 .invite-actions {
   display: flex;

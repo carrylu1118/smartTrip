@@ -263,3 +263,12 @@ html, body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* ---- Vant Toast 全局覆盖 ---- */
+.van-toast {
+  background: rgba(50, 50, 50, 0.85) !important;
+  color: #fff !important;
+}
+.van-toast__text {
+  color: #fff !important;
+}

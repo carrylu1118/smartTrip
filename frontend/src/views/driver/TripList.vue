@@ -25,8 +25,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import * as strokeApi from '@/api/stroke'
 import { formatDate } from '@/utils'
@@ -34,6 +34,7 @@ import AppHeader from '@/components/AppHeader.vue'
 import TabBar from '@/components/TabBar.vue'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const list = ref([])
 const loading = ref(true)
@@ -64,6 +65,8 @@ async function fetchList() {
 }
 
 async function onRefresh() { refreshing.value = true; await fetchList(); refreshing.value = false }
+
+watch(() => route.fullPath, () => { fetchList() })
 
 onMounted(fetchList)
 </script>
