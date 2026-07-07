@@ -1,9 +1,16 @@
 <template>
   <div class="page-container">
-    <AppHeader title="乘客订单" @click-left="onSwitchRole">
+    <AppHeader title="我的订单" @click-left="onSwitchRole">
       <template #left><van-icon name="user-o" size="20" color="#FF6B35" /></template>
       <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
     </AppHeader>
+
+    <div class="trip-banner passenger-order-banner">
+      <div class="banner-text">
+        <div class="banner-title">📋 乘客订单</div>
+        <div class="banner-sub">管理出行订单与支付</div>
+      </div>
+    </div>
 
     <van-loading v-if="loading" style="display:block; margin: 60px auto" />
 
@@ -76,6 +83,11 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.trip-banner { width: 100%; height: 80px; display: flex; align-items: center; padding: 0 20px; border-radius: 0 0 20px 20px; margin-bottom: 12px; }
+.passenger-order-banner { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.banner-text { color: #fff; }
+.banner-title { font-size: 18px; font-weight: 700; }
+.banner-sub { font-size: 12px; opacity: 0.85; margin-top: 4px; }
 .pay-btn { padding: 6px 18px; border: none; border-radius: 20px; background: linear-gradient(135deg, #FF6B35, #FF8A5C); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
 .pay-btn:active { opacity: 0.85; }
 .switch-btn { font-size: 14px; color: #FF6B35; font-weight: 500; }

@@ -1,9 +1,17 @@
 <template>
   <div class="page">
-    <AppHeader title="司机行程" @click-left="onSwitchRole">
+    <AppHeader title="我的行程" @click-left="onSwitchRole">
       <template #left><van-icon name="logistics" size="20" color="#FF6B35" /></template>
       <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
     </AppHeader>
+
+    <div class="trip-banner driver-trip-banner">
+      <div class="banner-text">
+        <div class="banner-title">🚘 司机行程</div>
+        <div class="banner-sub">发布路线，搭载同行乘客</div>
+      </div>
+    </div>
+
     <div class="content">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <div v-for="item in list" :key="item.id" class="trip-card" @click="onCardClick(item)">
@@ -72,6 +80,11 @@ onMounted(fetchList)
 </script>
 
 <style scoped>
+.trip-banner { width: 100%; height: 80px; display: flex; align-items: center; padding: 0 20px; border-radius: 0 0 20px 20px; margin-bottom: 12px; }
+.driver-trip-banner { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.banner-text { color: #fff; }
+.banner-title { font-size: 18px; font-weight: 700; }
+.banner-sub { font-size: 12px; opacity: 0.85; margin-top: 4px; }
 .page { min-height: 100vh; background: #f7f8fa; padding-bottom: 60px; }
 .content { padding: 12px; }
 .trip-card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); cursor: pointer; }

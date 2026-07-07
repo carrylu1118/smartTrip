@@ -1,9 +1,17 @@
 <template>
   <div class="page-container">
-    <AppHeader title="乘客行程" @click-left="onSwitchRole">
+    <AppHeader title="我的行程" @click-left="onSwitchRole">
       <template #left><van-icon name="user-o" size="20" color="#FF6B35" /></template>
       <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
     </AppHeader>
+
+    <!-- Banner -->
+    <div class="trip-banner passenger-trip-banner">
+      <div class="banner-text">
+        <div class="banner-title">🚗 乘客行程</div>
+        <div class="banner-sub">发布需求，寻找顺路车主</div>
+      </div>
+    </div>
 
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh" style="min-height: 70vh">
       <van-loading v-if="loading" style="display:block; margin: 60px auto" />
@@ -86,6 +94,11 @@ onMounted(fetchList)
 </script>
 
 <style scoped>
+.trip-banner { width: 100%; height: 80px; display: flex; align-items: center; padding: 0 20px; border-radius: 0 0 20px 20px; margin-bottom: 12px; }
+.passenger-trip-banner { background: linear-gradient(135deg, #11998e, #38ef7d); }
+.banner-text { color: #fff; }
+.banner-title { font-size: 18px; font-weight: 700; }
+.banner-sub { font-size: 12px; opacity: 0.85; margin-top: 4px; }
 .trip-card { cursor: pointer; }
 .trip-card:active { background: #f9f9f9; }
 .quick-tag { font-size: 11px; color: #FF6B35; background: #FFF3ED; padding: 2px 8px; border-radius: 10px; }

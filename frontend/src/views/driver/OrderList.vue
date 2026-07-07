@@ -1,9 +1,17 @@
 <template>
   <div class="page">
-    <AppHeader title="司机订单" @click-left="onSwitchRole">
+    <AppHeader title="我的订单" @click-left="onSwitchRole">
       <template #left><van-icon name="logistics" size="20" color="#FF6B35" /></template>
       <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
     </AppHeader>
+
+    <div class="trip-banner driver-order-banner">
+      <div class="banner-text">
+        <div class="banner-title">💰 司机订单</div>
+        <div class="banner-sub">订单管理与收款记录</div>
+      </div>
+    </div>
+
     <div class="content">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <div v-for="item in list" :key="item.id" class="order-card">
@@ -74,6 +82,11 @@ onMounted(fetchList)
 </script>
 
 <style scoped>
+.trip-banner { width: 100%; height: 80px; display: flex; align-items: center; padding: 0 20px; border-radius: 0 0 20px 20px; margin-bottom: 12px; }
+.driver-order-banner { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+.banner-text { color: #fff; }
+.banner-title { font-size: 18px; font-weight: 700; }
+.banner-sub { font-size: 12px; opacity: 0.85; margin-top: 4px; }
 .page { min-height: 100vh; background: #f7f8fa; padding-bottom: 60px; }
 .content { padding: 12px; }
 .order-card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
