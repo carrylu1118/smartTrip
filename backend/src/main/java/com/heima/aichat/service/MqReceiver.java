@@ -1,6 +1,8 @@
 package com.heima.aichat.service;
 
 import com.alibaba.fastjson.JSON;
+import com.heima.aichat.handler.MqHandler;
+import com.heima.commons.utils.SpringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.Queue;
@@ -23,6 +25,22 @@ public class MqReceiver {
         logger.info("user hit : message={}", message);
         MessageDto messageDto = JSON.parseObject(message, MessageDto.class);
         logger.info("dto={}",messageDto);
+
+        MqHandler handler = SpringUtil.getBean(messageDto.getType(), MqHandler.class);
+
+        switch (messageDto.getOperation()) {
+            case 1:
+                handler.add(messageDto.getIds());
+                break;
+            case 2:
+                handler.update(messageDto.getIds());
+                break;
+            case 3:
+                handler.delete(messageDto.getIds());
+                break;
+            default:
+                break;
+        }
 
     }
 
