@@ -34,6 +34,10 @@ public class KnowledgeBaseService {
         if (vectorStore == null) {
             return null;
         }
+        List<org.springframework.ai.document.Document> docs =
+            vectorStore.similaritySearch(query);
+
+        docs.forEach(doc -> log.debug("VectorStore search result: {}", doc.getText()));
         // TODO: Redis Stack 就绪后启用
         // List<org.springframework.ai.document.Document> docs =
         //     vectorStore.similaritySearch(SearchRequest.query(query).withTopK(3));
