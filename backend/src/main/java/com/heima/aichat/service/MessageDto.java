@@ -1,9 +1,8 @@
-package com.ruoyi.common.core.domain;
+package com.heima.aichat.service;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 @Data
 @AllArgsConstructor

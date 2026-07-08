@@ -6,6 +6,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import com.ruoyi.common.utils.spring.SpringUtils;
+import com.ruoyi.framework.web.service.RabbitSendService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.WebDataBinder;
@@ -27,12 +30,14 @@ import com.ruoyi.common.utils.sql.SqlUtil;
 
 /**
  * web层通用数据处理
- * 
+ *
  * @author ruoyi
  */
 public class BaseController
 {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    protected RabbitSendService rabbitSendService = SpringUtils.getBean(RabbitSendService.class);
 
     /**
      * 将前台传递过来的日期格式的字符串，自动转化为Date类型
@@ -119,7 +124,7 @@ public class BaseController
 
     /**
      * 响应返回结果
-     * 
+     *
      * @param rows 影响行数
      * @return 操作结果
      */
@@ -130,7 +135,7 @@ public class BaseController
 
     /**
      * 响应返回结果
-     * 
+     *
      * @param result 结果
      * @return 操作结果
      */

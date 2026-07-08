@@ -1,4 +1,4 @@
-package com.ruoyi.common.config;
+package com.ruoyi.framework.web.service;
 
 import com.alibaba.fastjson.JSON;
 import com.ruoyi.common.core.domain.MessageDto;
@@ -18,22 +18,22 @@ public class RabbitSendService {
                 .build();
         rabbitTemplate.convertAndSend(type, JSON.toJSONString(messageDto));
     }
-    public void sendAddNotice(String ids){
-        sendMessage(ids,1,"CAMPUSAI_NOTICE");
+    public void sendAddMsg(String ids){
+        sendMessage(ids,1,"HITCH_AI_MSG");
     }
-    public void sendUpdateNotice(String ids){
-        sendMessage(ids,2,"CAMPUSAI_NOTICE");
+    public void sendUpdateMsg(String ids){
+        sendMessage(ids,2,"HITCH_AI_MSG");
     }
-    public void sendDeleteNotice(String ids){
-        sendMessage(ids,3,"CAMPUSAI_NOTICE");
+    public void sendDeleteMsg(String ids){
+        sendMessage(ids,3,"HITCH_AI_MSG");
     }
-    public void sendAddMaterials(String ids){
-        sendMessage(ids,1,"CAMPUSAI_MATERIALS");
+    public void sendAddFile(String ids){
+        sendMessage(ids,1,"HITCH_AI_FILE");
     }
-    public void sendUpdateMaterials(String ids){
-        sendMessage(ids,2,"CAMPUSAI_MATERIALS");
+    public void sendUpdateFile(String ids){
+        sendMessage(ids,2,"HITCH_AI_FILE");
     }
-    public void sendDeleteMaterials(String ids){
-        sendMessage(ids,3,"CAMPUSAI_MATERIALS");
+    public void sendDeleteFile(String ids){
+        sendMessage(ids,3,"HITCH_AI_FILE");
     }
 }
