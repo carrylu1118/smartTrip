@@ -1,1 +1,0 @@
-import{a as t}from"./index-Ckd5NC9R.js";function e(a){return t.post("/payment/api/payment",a)}function r(a){return t.post("/payment/api/query",a)}function p(a){return t.post(`/payment/api/confirmPay/${a}`)}export{p as a,e as c,r as q};

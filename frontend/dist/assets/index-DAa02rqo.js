@@ -1,1 +1,0 @@
-import{ai as r}from"./index-CzbmZK5E.js";function n(s){r(s)}function a(s){if(!s)return"";var t=String(s);return t.length>=16?t.substring(0,10)+" "+t.substring(11,16):t}const i={1:"待支付",2:"已支付"};export{a as f,i as o,n as s};

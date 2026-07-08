@@ -1,15 +1,24 @@
 package com.heima.aichat.service;
 
+import cn.hutool.core.map.MapUtil;
 import com.heima.aichat.entity.ChatMessagePO;
 import com.heima.aichat.mapper.ChatMessageMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -35,8 +44,8 @@ public class AiChatService {
     @Autowired
     private ChatMessageMapper chatMessageMapper;
 
-    @Autowired(required = false)
-    private KnowledgeBaseService knowledgeBaseService;
+    @Autowired
+    private VectorStore vectorStore;
 
     // ---- 非流式 ----
 
@@ -53,8 +62,10 @@ public class AiChatService {
                 .content();
 
         saveMessage(conversationId, userId, "assistant", reply);
-        return resultMap(conversationId, reply);
+        return MapUtil.<String,Object>builder().put("conversationId", conversationId).put("reply", reply).build();
     }
+
+
 
     // ---- 流式 ----
 
@@ -69,8 +80,8 @@ public class AiChatService {
         return ChatClient.create(chatModel)
                 .prompt()
                 .system(SYSTEM_PROMPT + buildKnowledgeCtx(userMessage))
-                .messages(history)
                 .user(userMessage)
+                .messages(history)
                 .stream()
                 .content()
                 .map(chunk -> {
@@ -122,19 +133,17 @@ public class AiChatService {
                         : (Message) new UserMessage(m.getContent()))
                 .collect(Collectors.toList());
     }
-
-    private String buildKnowledgeCtx(String query) {
-        if (knowledgeBaseService == null) {
-            return "";
-        }
-        String ctx = knowledgeBaseService.search(query);
-        return (ctx != null && !ctx.isEmpty()) ? "\n[相关知识库信息]\n" + ctx : "";
+    private String buildKnowledgeCtx(String userMessage) {
+        return vectorStore.similaritySearch(
+                        SearchRequest.builder()
+                                .query(userMessage)
+                                .topK(5)
+                                .similarityThreshold(0.5d)
+                                .build()
+                ).stream()
+                .map(v -> "【" + v.getMetadata().get("source") + "】" + v.getText())
+                .collect(Collectors.joining("\n\n"));
     }
 
-    private Map<String, Object> resultMap(String cid, String reply) {
-        Map<String, Object> m = new LinkedHashMap<>();
-        m.put("conversationId", cid);
-        m.put("reply", reply);
-        return m;
-    }
+
 }
