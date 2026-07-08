@@ -19,8 +19,8 @@ public class RabbitConfig {
     @Autowired
     private CachingConnectionFactory connectionFactory;
 
-    public static final String CAMPUSAI_NOTICE = "CAMPUSAI_NOTICE";
-    public static final String CAMPUSAI_MATERIALS = "CAMPUSAI_MATERIALS";
+    public static final String HITCH_AI_MSG = "HITCH_AI_MSG";
+    public static final String HITCH_AI_FILE = "HITCH_AI_FILE";
 
 
     /**
@@ -31,17 +31,17 @@ public class RabbitConfig {
 //        return new DirectExchange(CAMPUSAI_EXCHANGE);
 //    }
     @Bean
-    public Queue getNoticeQueue() {
-        return new Queue(CAMPUSAI_NOTICE);
+    public Queue getAiMsgQueue() {
+        return new Queue(HITCH_AI_MSG);
     }
 //    @Bean
 //    Binding bindingNoticeDirect() {
-//        return BindingBuilder.bind(getNoticeQueue()).to(directExchange()).with(CAMPUSAI_NOTICE);
+//        return BindingBuilder.bind(getNoticeQueue()).to(directExchange()).with(HITCH_AI_MSG);
 //    }
 
     @Bean
-    public Queue getDocumentQueue() {
-        return new Queue(CAMPUSAI_MATERIALS);
+    public Queue getAiFileQueue() {
+        return new Queue(HITCH_AI_FILE);
     }
 //    @Bean
 //    Binding bindingDocumentDirect() {
