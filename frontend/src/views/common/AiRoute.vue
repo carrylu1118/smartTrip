@@ -2,9 +2,18 @@
   <div class="ai-route-page">
     <van-nav-bar title="智能问路" left-arrow @click-left="router.back" fixed>
       <template #right>
-        <van-icon name="clock-o" size="20" color="#666" @click="loadHistory" />
+        <van-icon name="comment-o" size="20" color="#666" @click="showConvSheet = true" />
       </template>
     </van-nav-bar>
+
+    <!-- 会话管理弹出层 -->
+    <van-action-sheet
+      v-model:show="showConvSheet"
+      title="会话管理"
+      :actions="convActions"
+      cancel-text="关闭"
+      @select="onConvSelect"
+    />
 
     <!-- 聊天消息区 -->
     <div ref="chatList" class="chat-list">
@@ -16,11 +25,10 @@
 
       <div v-if="loading" class="loading-hint">
         <van-loading size="24" />
-        <span style="margin-left:8px;color:#999">加载历史记录...</span>
+        <span style="margin-left:8px;color:#999">加载中...</span>
       </div>
 
       <template v-for="(msg, idx) in messages" :key="idx">
-        <!-- 会话切换分隔线 -->
         <div
           v-if="idx === 0 || messages[idx - 1].conversationId !== msg.conversationId"
           class="conv-divider"
@@ -53,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast } from 'vant'
 import * as aiApi from '@/api/ai'
@@ -66,10 +74,24 @@ const inputText = ref('')
 const sending = ref(false)
 const loading = ref(false)
 const chatList = ref(null)
+const showConvSheet = ref(false)
+const convList = ref([])
 
-function isUser(role) {
-  return role === 'user'
-}
+// 会话列表，动态构建 action sheet 选项
+const convActions = computed(() => {
+  const items = [{ name: '创建新对话', subname: '开始一段新的对话', color: '#FF6B35' }]
+  convList.value.forEach(conv => {
+    const name = conv.conversationId || conv.conversation_id || ''
+    const time = conv.lastTime || conv.last_time || ''
+    items.push({
+      name: name,
+      subname: time ? time.substring(0, 16) : name.substring(0, 8) + '...'
+    })
+  })
+  return items
+})
+
+function isUser(role) { return role === 'user' }
 
 function renderMd(text) {
   if (!text) return ''
@@ -89,12 +111,8 @@ function renderMd(text) {
 
 function formatConvTime(t) {
   if (!t) return ''
-  // 取日期部分
   const s = String(t)
-  const date = s.substring(0, 10)
-  const now = new Date()
-  const today = now.toISOString().substring(0, 10)
-  return date === today ? '今天' : date
+  return s.substring(0, 10)
 }
 
 function scrollToBottom() {
@@ -105,25 +123,49 @@ function scrollToBottom() {
   })
 }
 
-// 加载全部历史记录
-async function loadHistory() {
+// 加载会话列表
+async function loadConvList() {
+  try {
+    const res = await aiApi.getConversations()
+    if (res && res.code === 200 && res.data) {
+      convList.value = Array.isArray(res.data) ? res.data : []
+    }
+  } catch { /* ignore */ }
+}
+
+// 加载指定会话的历史消息
+async function loadHistory(cid) {
   loading.value = true
   try {
-    const res = await aiApi.getAllMessages()
-    if (res && res.code === 200 && res.data && res.data.length > 0) {
-      // 后端返回倒序（最新在前），反转为正序显示
-      const list = [...res.data].reverse()
-      messages.value = list
-      // 定位到最后一个会话
-      if (list.length > 0) {
-        conversationId.value = list[list.length - 1].conversationId || ''
-      }
+    const res = await aiApi.getHistory(cid)
+    if (res && res.code === 200 && res.data) {
+      const list = Array.isArray(res.data) ? res.data : []
+      // 后端返回时间升序，无需反转
+      messages.value = list.map(m => ({
+        ...m,
+        role: m.role === 'user' ? 'user' : 'assistant',
+        createdTime: m.createdTime || m.time
+      }))
       scrollToBottom()
     }
   } catch {
-    // ignore
+    messages.value = []
   } finally {
     loading.value = false
+  }
+}
+
+// 会话选择处理
+function onConvSelect(action) {
+  showConvSheet.value = false
+  if (action.name === '创建新对话') {
+    // 新建会话
+    conversationId.value = ''
+    messages.value = []
+  } else {
+    // 切换到旧会话
+    conversationId.value = action.name
+    loadHistory(action.name)
   }
 }
 
@@ -135,27 +177,25 @@ async function send() {
   inputText.value = ''
   scrollToBottom()
 
-  // 插入占位 AI 气泡，必须通过 reactive 数组索引访问才能触发 UI 更新
   messages.value.push({ role: 'assistant', content: '', conversationId: conversationId.value })
   const aiIdx = messages.value.length - 1
   sending.value = true
 
   aiApi.sendMessageStream(
     { conversationId: conversationId.value, message: text },
-    // onToken: 逐字追加 — 通过 messages.value[aiIdx] 修改 reactive 代理
     (token) => {
       messages.value[aiIdx].content += token
       scrollToBottom()
     },
-    // onDone: 流结束
     () => {
       if (!messages.value[aiIdx].content) {
         messages.value[aiIdx].content = '(空回复)'
       }
       sending.value = false
       scrollToBottom()
+      // 刷新会话列表（可能有新的 conversationId）
+      loadConvList()
     },
-    // onError
     () => {
       messages.value[aiIdx].content = messages.value[aiIdx].content || '网络异常，请检查连接后重试。'
       sending.value = false
@@ -165,7 +205,21 @@ async function send() {
 }
 
 onMounted(() => {
-  loadHistory()
+  loadConvList()
+  // 默认加载最近会话
+  aiApi.getAllMessages().then(res => {
+    if (res && res.code === 200 && res.data && res.data.length > 0) {
+      const list = [...res.data].reverse()
+      messages.value = list.map(m => ({
+        ...m,
+        role: m.role === 'assistant' ? 'assistant' : 'user'
+      }))
+      if (list.length > 0) {
+        conversationId.value = list[list.length - 1].conversationId || ''
+      }
+      scrollToBottom()
+    }
+  })
 })
 </script>
 
@@ -177,7 +231,6 @@ onMounted(() => {
   background: #f0f0f0;
 }
 
-/* 聊天列表 */
 .chat-list {
   flex: 1;
   overflow-y: auto;
@@ -185,145 +238,40 @@ onMounted(() => {
   -webkit-overflow-scrolling: touch;
 }
 
-.empty-hint {
-  text-align: center;
-  margin-top: 80px;
-}
-.empty-icon {
-  font-size: 56px;
-  margin-bottom: 16px;
-}
-.empty-text {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1A1A2E;
-  margin-bottom: 6px;
-}
-.empty-sub {
-  font-size: 13px;
-  color: #9CA3AF;
-}
+.empty-hint { text-align: center; margin-top: 80px; }
+.empty-icon { font-size: 56px; margin-bottom: 16px; }
+.empty-text { font-size: 18px; font-weight: 600; color: #1A1A2E; margin-bottom: 6px; }
+.empty-sub { font-size: 13px; color: #9CA3AF; }
 
-.loading-hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 60px;
-}
+.loading-hint { display: flex; align-items: center; justify-content: center; margin-top: 60px; }
 
-/* 会话分隔线 */
-.conv-divider {
-  text-align: center;
-  margin: 20px 0 12px;
-}
+.conv-divider { text-align: center; margin: 20px 0 12px; }
 .conv-divider span {
-  display: inline-block;
-  padding: 4px 14px;
-  font-size: 12px;
-  color: #999;
-  background: #e8e8e8;
-  border-radius: 10px;
+  display: inline-block; padding: 4px 14px; font-size: 12px; color: #999;
+  background: #e8e8e8; border-radius: 10px;
 }
 
-/* 聊天气泡 */
-.chat-bubble {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 16px;
-  gap: 8px;
-}
-.bubble-ai {
-  justify-content: flex-start;
-}
-.bubble-user {
-  justify-content: flex-end;
-}
+.chat-bubble { display: flex; align-items: flex-start; margin-bottom: 16px; gap: 8px; }
+.bubble-ai { justify-content: flex-start; }
+.bubble-user { justify-content: flex-end; }
 
-.avatar-ai,
-.avatar-user {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-.avatar-ai {
-  background: #E8F5E9;
-}
-.avatar-user {
-  background: #FFF3ED;
-}
+.avatar-ai, .avatar-user { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.avatar-ai { background: #E8F5E9; }
+.avatar-user { background: #FFF3ED; }
 
-.bubble-content {
-  max-width: 70%;
-  padding: 10px 14px;
-  border-radius: 16px;
-  font-size: 15px;
-  line-height: 1.6;
-  word-break: break-word;
-}
-.bubble-ai .bubble-content {
-  background: #fff;
-  color: #1A1A2E;
-  border-bottom-left-radius: 4px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-}
-/* AI Markdown 渲染 */
+.bubble-content { max-width: 70%; padding: 10px 14px; border-radius: 16px; font-size: 15px; line-height: 1.6; word-break: break-word; }
+.bubble-ai .bubble-content { background: #fff; color: #1A1A2E; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
 .bubble-ai .bubble-content :deep(strong) { font-weight: 700; }
 .bubble-ai .bubble-content :deep(h3) { font-size: 15px; font-weight: 700; margin: 8px 0 4px; }
 .bubble-ai .bubble-content :deep(h4) { font-size: 14px; font-weight: 700; margin: 6px 0 2px; }
 .bubble-ai .bubble-content :deep(ul) { padding-left: 16px; margin: 4px 0; }
 .bubble-ai .bubble-content :deep(li) { margin: 2px 0; }
-.bubble-ai .bubble-content :deep(code) {
-  background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; font-size: 13px; font-family: monospace;
-}
-.bubble-user .bubble-content {
-  background: linear-gradient(135deg, #FF6B35, #FF8A5C);
-  color: #fff;
-  border-bottom-right-radius: 4px;
-}
+.bubble-ai .bubble-content :deep(code) { background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; font-size: 13px; font-family: monospace; }
+.bubble-user .bubble-content { background: linear-gradient(135deg, #FF6B35, #FF8A5C); color: #fff; border-bottom-right-radius: 4px; }
 
-/* 输入栏 */
-.input-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: #fff;
-  border-top: 1px solid #eee;
-  padding-bottom: calc(8px + env(safe-area-inset-bottom));
-}
-.input-bar .input-field {
-  flex: 1;
-  height: 40px;
-  border-radius: 20px;
-  background: #f5f5f5;
-  border: 1px solid #EBEDF0;
-  padding: 0 16px;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.input-bar .input-field:focus {
-  border-color: #FF6B35;
-}
-.send-btn {
-  height: 40px;
-  padding: 0 20px;
-  border: none;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #FF6B35, #FF8A5C);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.send-btn:disabled {
-  opacity: 0.4;
-}
+.input-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fff; border-top: 1px solid #eee; padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
+.input-bar .input-field { flex: 1; height: 40px; border-radius: 20px; background: #f5f5f5; border: 1px solid #EBEDF0; padding: 0 16px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+.input-bar .input-field:focus { border-color: #FF6B35; }
+.send-btn { height: 40px; padding: 0 20px; border: none; border-radius: 20px; background: linear-gradient(135deg, #FF6B35, #FF8A5C); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.send-btn:disabled { opacity: 0.4; }
 </style>

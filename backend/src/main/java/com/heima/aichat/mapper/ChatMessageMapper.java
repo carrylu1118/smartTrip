@@ -4,6 +4,7 @@ import com.heima.aichat.entity.ChatMessagePO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * AI 聊天消息 Mapper — 会话记忆持久化
@@ -21,7 +22,7 @@ public interface ChatMessageMapper {
     /**
      * 查询用户的会话列表（去重 conversation_id，按最新消息时间排序）
      */
-    List<String> selectConversationIdsByUser(@Param("userId") String userId);
+    List<Map<String, Object>> selectConversationIdsByUser(@Param("userId") String userId);
 
     int deleteByConversationId(@Param("conversationId") String conversationId);
 

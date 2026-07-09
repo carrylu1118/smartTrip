@@ -24,10 +24,11 @@
         LIMIT #{limit}
     </select>
 
-    <select id="selectConversationIdsByUser" resultType="java.lang.String">
-        SELECT DISTINCT conversation_id
+    <select id="selectConversationIdsByUser" resultType="map">
+        SELECT conversation_id AS conversationId, MAX(created_time) AS lastTime
         FROM t_chat_message
         WHERE user_id = #{userId}
+        GROUP BY conversation_id
         ORDER BY MAX(created_time) DESC
     </select>
 

@@ -70,8 +70,8 @@ public class AiChatController {
     @GetMapping("/conversations")
     public ResponseVO conversations(HttpServletRequest request) {
         String userId = getUserId(request);
-        List<String> ids = aiChatService.getConversations(userId);
-        return ResponseVO.success(ids);
+        List<Map<String, Object>> convs = aiChatService.getConversations(userId);
+        return ResponseVO.success(convs);
     }
 
     @Operation(summary = "获取用户全部聊天记录 (跨会话)")

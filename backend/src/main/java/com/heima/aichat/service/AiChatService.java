@@ -74,7 +74,7 @@ public class AiChatService {
         return chatMessageMapper.selectByConversationId(conversationId, 50);
     }
 
-    public List<String> getConversations(String userId) {
+    public List<Map<String, Object>> getConversations(String userId) {
         return chatMessageMapper.selectConversationIdsByUser(userId);
     }
 
