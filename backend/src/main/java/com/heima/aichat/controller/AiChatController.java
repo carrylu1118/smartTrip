@@ -27,20 +27,6 @@ public class AiChatController {
     @Autowired
     private AiChatService aiChatService;
 
-    @Operation(summary = "非流式对话")
-    @PostMapping
-    public ResponseVO chat(@RequestBody Map<String, String> body, HttpServletRequest request) {
-        String message = body.get("message");
-        if (message == null || message.trim().isEmpty()) {
-            return ResponseVO.error("消息不能为空");
-        }
-        String conversationId = body.get("conversationId");
-        String userId = getUserId(request);
-        log.info("AI chat: userId={}, cid={}, msg={}", userId, conversationId, message);
-        Map<String, Object> result = aiChatService.chat(conversationId, userId, message.trim());
-        return ResponseVO.success(result);
-    }
-
     @Operation(summary = "流式对话 (SSE)")
     @PostMapping("/stream")
     public SseEmitter chatStream(@RequestBody Map<String, String> body, HttpServletRequest request) {

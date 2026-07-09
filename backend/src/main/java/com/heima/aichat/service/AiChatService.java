@@ -34,42 +34,13 @@ public class AiChatService {
     private static final Logger log = LoggerFactory.getLogger(AiChatService.class);
     private static final int MAX_HISTORY = 20;
 
-    static final String SYSTEM_PROMPT =
-            "你是智驾游的AI出行助手，名叫「小智」。你可以帮助用户解答出行、路线规划、交通等问题。" +
-                    "当用户要求推荐旅行社、特色美食、地标名片、各省景点时，请从知识库中查询有没有相关的信息，如果有请返回。如果没有直接提示“很抱歉暂时没有相关推荐”。" +
-            "回答时请保持简洁、友好、专业。用中文回答。";
-
-    @Autowired
-    private ChatModel chatModel;
-
     @Autowired
     private ChatMessageMapper chatMessageMapper;
 
     @Autowired
-    private VectorStore vectorStore;
-
-    // ---- 非流式 ----
-
-    public Map<String, Object> chat(String conversationId, String userId, String userMessage) {
-        conversationId = ensureCid(conversationId);
-        saveMessage(conversationId, userId, "user", userMessage);
-
-        ChatClient client = ChatClient.create(chatModel);
-        String reply = client.prompt()
-                .system(SYSTEM_PROMPT + buildKnowledgeCtx(userMessage))
-                .messages(buildHistory(conversationId))
-                .user(userMessage)
-                .call()
-                .content();
-
-        saveMessage(conversationId, userId, "assistant", reply);
-        return MapUtil.<String,Object>builder().put("conversationId", conversationId).put("reply", reply).build();
-    }
-
-
+    private ChatClient chatClient;
 
     // ---- 流式 ----
-
     public Flux<String> chatStream(String conversationId, String userId, String userMessage) {
         conversationId = ensureCid(conversationId);
         final String cid = conversationId;
@@ -78,11 +49,9 @@ public class AiChatService {
         List<Message> history = buildHistory(cid);
         StringBuilder fullReply = new StringBuilder();
 
-        return ChatClient.create(chatModel)
-                .prompt()
-                .system(SYSTEM_PROMPT + buildKnowledgeCtx(userMessage))
-                .user(userMessage)
+        return chatClient.prompt()
                 .messages(history)
+                .user(userMessage)
                 .stream()
                 .content()
                 .map(chunk -> {
@@ -96,14 +65,13 @@ public class AiChatService {
                     log.info("Stream done: cid={}, len={}", cid, fullReply.length());
                 })
                 .onErrorResume(err -> {
-                    log.error("Stream error", err);
-                    saveMessage(cid, userId, "assistant", fullReply + " [异常] " + err.getMessage());
+                    err.printStackTrace();
                     return Flux.just("抱歉，AI 服务暂时不可用。");
                 });
     }
 
     public List<ChatMessagePO> getHistory(String conversationId) {
-        return chatMessageMapper.selectByConversationId(conversationId, 100);
+        return chatMessageMapper.selectByConversationId(conversationId, 50);
     }
 
     public List<String> getConversations(String userId) {
@@ -133,17 +101,5 @@ public class AiChatService {
                         : (Message) new UserMessage(m.getContent()))
                 .collect(Collectors.toList());
     }
-    private String buildKnowledgeCtx(String userMessage) {
-        return vectorStore.similaritySearch(
-                        SearchRequest.builder()
-                                .query(userMessage)
-                                .topK(5)
-                                .similarityThreshold(0.5d)
-                                .build()
-                ).stream()
-                .map(v -> "【" + v.getMetadata().get("source") + "】" + v.getText())
-                .collect(Collectors.joining("\n\n"));
-    }
-
 
 }
