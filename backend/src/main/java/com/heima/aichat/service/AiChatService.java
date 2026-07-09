@@ -36,6 +36,7 @@ public class AiChatService {
 
     static final String SYSTEM_PROMPT =
             "你是智驾游的AI出行助手，名叫「小智」。你可以帮助用户解答出行、路线规划、交通等问题。" +
+                    "当用户要求推荐旅行社、特色美食、地标名片时，请从知识库中查询有没有相关的信息，如果有请返回。" +
             "回答时请保持简洁、友好、专业。用中文回答。";
 
     @Autowired
@@ -94,11 +95,10 @@ public class AiChatService {
                     saveMessage(cid, userId, "assistant", fullReply.toString());
                     log.info("Stream done: cid={}, len={}", cid, fullReply.length());
                 })
-                .concatWith(Flux.just("[DONE:" + cid + "]"))
                 .onErrorResume(err -> {
                     log.error("Stream error", err);
                     saveMessage(cid, userId, "assistant", fullReply + " [异常] " + err.getMessage());
-                    return Flux.just("抱歉，AI 服务暂时不可用。", "[DONE:" + cid + "]");
+                    return Flux.just("抱歉，AI 服务暂时不可用。");
                 });
     }
 

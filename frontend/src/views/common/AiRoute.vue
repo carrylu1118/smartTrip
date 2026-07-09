@@ -148,9 +148,10 @@ async function send() {
       scrollToBottom()
     },
     // onDone: 流结束
-    (newCid) => {
-      if (newCid) conversationId.value = newCid
-      if (!messages.value[aiIdx].content) messages.value[aiIdx].content = '(空回复)'
+    () => {
+      if (!messages.value[aiIdx].content) {
+        messages.value[aiIdx].content = '(空回复)'
+      }
       sending.value = false
       scrollToBottom()
     },

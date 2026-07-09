@@ -61,20 +61,13 @@ public class AiChatController {
         flux.subscribe(
             token -> {
                 try {
-                    if (token.startsWith("[DONE:")) {
-                        String cid = token.substring(6, token.length() - 1);
-                        emitter.send(SseEmitter.event().name("done")
-                                .data("{\"conversationId\":\"" + cid + "\"}"));
-                        emitter.complete();
-                    } else {
-                        emitter.send(SseEmitter.event().data(token));
-                    }
+                    emitter.send(SseEmitter.event().data(token));
                 } catch (IOException e) {
                     emitter.completeWithError(e);
                 }
             },
             emitter::completeWithError,
-            () -> {}
+            emitter::complete
         );
 
         return emitter;

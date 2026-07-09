@@ -55,33 +55,22 @@ export function sendMessageStream(data, onToken, onDone, onError) {
 
     while (true) {
       const { done, value } = await reader.read()
-      if (done) break
+      if (done) {
+        break
+      }
 
       buffer += decoder.decode(value, { stream: true })
       const lines = buffer.split('\n')
       buffer = lines.pop() || ''
 
-      let eventName = ''
       for (const line of lines) {
-        if (line.startsWith('event:')) {
-          eventName = line.slice(6).trim()
-        } else if (line.startsWith('data:')) {
-          const content = line.slice(5)
-          if (eventName === 'done') {
-            try {
-              const meta = JSON.parse(content)
-              onDone(meta.conversationId)
-            } catch { onDone('') }
-          } else if (content.startsWith('[DONE:')) {
-            const cid = content.slice(6, -1)
-            onDone(cid)
-          } else {
-            onToken(content)
-          }
-          eventName = ''
+        if (line.startsWith('data:')) {
+          onToken(line.slice(5))
         }
       }
     }
+    // 流自然结束，前端已有 conversationId，无需后端传回
+    onDone('')
   }).catch((err) => {
     if (err.name !== 'AbortError') {
       onError(err)
