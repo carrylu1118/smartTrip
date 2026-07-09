@@ -15,15 +15,12 @@ import org.springframework.ai.reader.ExtractedTextFormatter;
 import org.springframework.ai.reader.TextReader;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
 import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
+import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 
-import java.io.InputStream;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -133,29 +130,44 @@ public class FileHandler implements MqHandler {
     }
 
     private List<Document> parsePdf(String url) {
-        PagePdfDocumentReader reader = null;
-        reader = new PagePdfDocumentReader(
-                url, // 文件源
+        PagePdfDocumentReader reader = new PagePdfDocumentReader(
+                url,
                 PdfDocumentReaderConfig.builder()
                         .withPageExtractedTextFormatter(
                                 ExtractedTextFormatter.builder()
-                                        .withNumberOfTopTextLinesToDelete(1) //删除页眉 (以下选项视文档实际情况而定，这里仅做功能展示)
-                                        .withNumberOfBottomTextLinesToDelete(1) //删除页脚
-                                        .overrideLineSeparator("\n") //设置行分隔符
+                                        .withNumberOfTopTextLinesToDelete(1)
+                                        .withNumberOfBottomTextLinesToDelete(1)
+                                        .overrideLineSeparator("\n")
                                         .build()
                         )
-                        .withPagesPerDocument(1) // 每1页PDF作为一个Document
+                        .withPagesPerDocument(1)
                         .build()
         );
-        // 2.读取PDF文档，拆分为Document
         List<Document> documents = reader.read();
-        log.info("Pdf documents count: {}", documents.size());
-        return documents;
+        log.info("Pdf documents read: {}", documents.size());
+        return splitIfNeeded(documents);
     }
-
 
     private List<Document> parseText(String url) {
         TextReader reader = new TextReader(url);
-        return reader.read();
+        List<Document> documents = reader.read();
+        log.info("Text documents read: {}", documents.size());
+        return splitIfNeeded(documents);
+    }
+
+    /**
+     * 对大文档做 Token 分块，避免单个 Document 超过 Embedding token 上限
+     */
+    private List<Document> splitIfNeeded(List<Document> docs) {
+        if (docs == null || docs.isEmpty()) {
+            return Collections.emptyList();
+        }
+        TokenTextSplitter splitter = TokenTextSplitter.builder()
+                .withKeepSeparator(true)
+                .withChunkSize(1000)
+                .withMinChunkLengthToEmbed(10)
+                .withPunctuationMarks(List.of('#','\n'))
+                .build();
+        return splitter.apply(docs);
     }
 }

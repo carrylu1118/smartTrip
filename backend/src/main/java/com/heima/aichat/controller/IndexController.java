@@ -1,4 +1,4 @@
-package com.heima;
+package com.heima.aichat.controller;
 
 
 import org.springframework.stereotype.Controller;

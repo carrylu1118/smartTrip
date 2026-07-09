@@ -19,8 +19,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableRedisHttpSession(maxInactiveIntervalInSeconds = 86400)
 @ServletComponentScan
-public class AllinoneApplication {
+public class BackendApplication {
     public static void main(String[] args) {
-        SpringApplication.run(AllinoneApplication.class, args);
+        SpringApplication.run(BackendApplication.class, args);
     }
 }
