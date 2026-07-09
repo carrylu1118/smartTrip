@@ -19,6 +19,11 @@ public interface AiVectorIdsMapper {
      */
     AiVectorIds selectByTypeAndSourceId(@Param("type") String type, @Param("sourceId") String sourceId);
 
+    /**
+     * 根据业务类型和源ID查找所有记录（一个文件可能拆成多个文档段）
+     */
+    List<AiVectorIds> selectListByTypeAndSourceId(@Param("type") String type, @Param("sourceId") String sourceId);
+
     List<AiVectorIds> selectByType(@Param("type") String type);
 
     int deleteById(@Param("id") Integer id);

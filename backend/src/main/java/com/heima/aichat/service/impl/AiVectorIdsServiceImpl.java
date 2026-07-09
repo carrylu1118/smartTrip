@@ -23,6 +23,11 @@ public class AiVectorIdsServiceImpl implements IAiVectorIdsService {
     }
 
     @Override
+    public List<AiVectorIds> listByTypeAndSourceId(String type, String sourceId) {
+        return mapper.selectListByTypeAndSourceId(type, sourceId);
+    }
+
+    @Override
     public List<AiVectorIds> listByType(String type) {
         return mapper.selectByType(type);
     }

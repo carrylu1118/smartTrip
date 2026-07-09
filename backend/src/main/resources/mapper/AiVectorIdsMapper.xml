@@ -24,6 +24,11 @@
         LIMIT 1
     </select>
 
+    <select id="selectListByTypeAndSourceId" resultMap="BaseResultMap">
+        SELECT * FROM t_ai_vector_ids
+        WHERE type = #{type} AND source_id = #{sourceId}
+    </select>
+
     <select id="selectByType" resultMap="BaseResultMap">
         SELECT * FROM t_ai_vector_ids WHERE type = #{type}
     </select>

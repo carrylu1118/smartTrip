@@ -11,6 +11,8 @@ public interface IAiVectorIdsService {
 
     AiVectorIds getByTypeAndSourceId(String type, String sourceId);
 
+    List<AiVectorIds> listByTypeAndSourceId(String type, String sourceId);
+
     List<AiVectorIds> listByType(String type);
 
     boolean save(AiVectorIds record);
