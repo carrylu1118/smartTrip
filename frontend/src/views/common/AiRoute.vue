@@ -79,14 +79,11 @@ const convList = ref([])
 
 // 会话列表，动态构建 action sheet 选项
 const convActions = computed(() => {
-  const items = [{ name: '创建新对话', subname: '开始一段新的对话', color: '#FF6B35' }]
+  const items = [{ name: '创建新对话', color: '#FF6B35', cid: '' }]
   convList.value.forEach(conv => {
-    const name = conv.conversationId || conv.conversation_id || ''
+    const cid = conv.conversationId || conv.conversation_id || ''
     const time = conv.lastTime || conv.last_time || ''
-    items.push({
-      name: name,
-      subname: time ? time.substring(0, 16) : name.substring(0, 8) + '...'
-    })
+    items.push({ name: time ? time.substring(0, 16) : '未知时间', cid: cid })
   })
   return items
 })
@@ -164,8 +161,8 @@ function onConvSelect(action) {
     messages.value = []
   } else {
     // 切换到旧会话
-    conversationId.value = action.name
-    loadHistory(action.name)
+    conversationId.value = action.cid
+    loadHistory(action.cid)
   }
 }
 
