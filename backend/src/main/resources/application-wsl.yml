@@ -31,7 +31,7 @@ spring:
     publisher-returns: true
     listener:
       simple:
-        acknowledge-mode: manual
+        acknowledge-mode: auto
   servlet:
     multipart:
       max-file-size: 10MB
