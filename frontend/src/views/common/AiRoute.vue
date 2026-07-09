@@ -79,11 +79,21 @@ const convList = ref([])
 
 // 会话列表，动态构建 action sheet 选项
 const convActions = computed(() => {
-  const items = [{ name: '创建新对话', color: '#FF6B35', cid: '' }]
+  const isNew = !conversationId.value
+  const items = [{
+    name: '创建新对话',
+    color: isNew ? '#FF6B35' : undefined,
+    cid: ''
+  }]
   convList.value.forEach(conv => {
     const cid = conv.conversationId || conv.conversation_id || ''
     const time = conv.lastTime || conv.last_time || ''
-    items.push({ name: time ? time.substring(0, 16) : '未知时间', cid: cid })
+    const active = cid === conversationId.value
+    items.push({
+      name: (active ? '✓ ' : '') + (time ? time.substring(0, 16) : '未知时间'),
+      color: active ? '#FF6B35' : undefined,
+      cid: cid
+    })
   })
   return items
 })
@@ -201,22 +211,17 @@ async function send() {
   )
 }
 
-onMounted(() => {
-  loadConvList()
-  // 默认加载最近会话
-  aiApi.getAllMessages().then(res => {
-    if (res && res.code === 200 && res.data && res.data.length > 0) {
-      const list = [...res.data].reverse()
-      messages.value = list.map(m => ({
-        ...m,
-        role: m.role === 'assistant' ? 'assistant' : 'user'
-      }))
-      if (list.length > 0) {
-        conversationId.value = list[list.length - 1].conversationId || ''
-      }
-      scrollToBottom()
+onMounted(async () => {
+  await loadConvList()
+  // 默认加载最近一次会话的历史记录
+  if (convList.value.length > 0) {
+    const first = convList.value[0]
+    const cid = first.conversationId || first.conversation_id || ''
+    if (cid) {
+      conversationId.value = cid
+      await loadHistory(cid)
     }
-  })
+  }
 })
 </script>
 
