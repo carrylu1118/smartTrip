@@ -8,7 +8,7 @@
     @click-left="onClickLeft"
     @click-right="onClickRight"
   >
-    <template #left>
+    <template v-if="$slots.left" #left>
       <slot name="left" />
     </template>
     <template #right>
