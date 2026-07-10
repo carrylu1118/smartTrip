@@ -131,7 +131,7 @@ async function loadData() {
 
 onMounted(() => {
   loadData()
-  pollTimer = setInterval(loadData, 1000)
+  pollTimer = setInterval(loadData, 3000)
 })
 
 onBeforeUnmount(() => {

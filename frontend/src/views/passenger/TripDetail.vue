@@ -216,7 +216,7 @@ function arraysEqual(a, b) {
 
 onMounted(() => {
   loadAll()
-  pollTimer = setInterval(() => loadAll(true), 1000)
+  pollTimer = setInterval(() => loadAll(true), 3000)
 })
 
 onBeforeUnmount(() => {
