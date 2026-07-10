@@ -26,13 +26,16 @@
             </span>
           </div>
           <div class="text-sm text-secondary mt-sm">
-            {{ inv.startAddr || '' }} → {{ inv.endAddr || '' }}
+            起: {{ inv.startAddr || '' }} ({{ inv.startDistance || 0 }}km) → 终: {{ inv.endAddr || '' }} ({{ inv.endDistance || 0 }}km)
+          </div>
+          <div class="text-sm text-hint mt-sm">
+            时间差: {{ diffDate(trip?.departureTime, inv.departureTime || inv._departureTime) }} | 剩{{ inv.quantity || 0 }}座
           </div>
         </div>
       </div>
 
       <div v-if="inv.status === 0" class="invite-actions mt-md">
-        <span v-if="inv.quantity === 0" class="full-tag">已满员</span>
+        <span v-if="(inv.quantity || 1) === 0" class="full-tag">已满员</span>
         <template v-else>
           <button class="btn-accept" :disabled="acting[inv.id]" @click="onAccept(inv)">
             {{ acting[inv.id] ? '处理中...' : '确认同行' }}
