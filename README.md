@@ -18,38 +18,85 @@
 
 ## 技术栈
 
-### 后端 (Backend)
+### Backend — 后端核心（Spring Boot 3.5.3 + Java 17）
 
 | 技术 | 版本 / 说明 |
 |------|------------|
-| Java | 1.8 |
-| Spring Boot | 2.2.5.RELEASE |
-| MyBatis + MyBatis-Spring | 2.1.3 |
-| MySQL | 8.0 (Druid 连接池) |
-| Redis | Session 共享 & 缓存 (Lettuce/Jedis) |
-| MongoDB | 通知消息存储 |
-| RabbitMQ | 行程匹配消息队列 |
-| Minio | 文件/图片对象存储 |
-| WebSocket | 实时消息推送 |
-| 百度地图 API | 路径规划 & 距离估算 |
-| 百度 AI SDK | AI 助手 (文心一言) |
-| 微信支付 SDK | 订单支付 |
-| Knife4j / Swagger | API 文档 |
-| Spring Actuator | 健康检查 |
-| Fastjson | JSON 序列化 |
-| GeoHash | 地理位置编码 |
+| **Java** | 17 |
+| **Spring Boot** | 3.5.3 |
+| **Spring AI** | 1.1.8 (BOM) |
+| ├─ spring-ai-starter-model-openai | 对接千问 (DashScope OpenAI 兼容) |
+| ├─ spring-ai-starter-vector-store-redis | Redis Stack 向量存储 |
+| ├─ spring-ai-advisors-vector-store | 向量检索顾问 |
+| └─ spring-ai-pdf-document-reader | PDF 文档解析 |
+| **MyBatis** | mybatis-spring-boot-starter 3.0.3 |
+| **Druid** | druid-spring-boot-3-starter 1.2.23 |
+| **MySQL** | mysql-connector-j (8.0) |
+| **Redis** | Spring Data Redis (Lettuce) + Session 共享 |
+| **Redis Stack** | VectorStore 向量索引 (HNSW + COSINE) |
+| **MongoDB** | Spring Data MongoDB — 通知消息存储 |
+| **RabbitMQ** | Spring AMQP — 行程匹配 & AI 文档向量化 |
+| **MinIO** | 8.5.10 — 文件/图片对象存储 |
+| **WebSocket** | spring-boot-starter-websocket — 实时消息推送 |
+| **百度地图 API** | 路径规划 & 距离估算 |
+| **百度 AI SDK** | 4.16.2 — 车牌识别 |
+| **微信支付 SDK** | red.htt:wxpay-sdk 3.0.9.1 |
+| **SpringDoc OpenAPI** | 2.6.0 (替代 springfox+knife4j) |
+| **Apache POI** | 5.2.5 — Word/DOCX 文档解析 |
+| **Hutool** | 5.8.40 — 工具库 |
+| **Fastjson** | 1.2.83 |
+| **Lombok** | provided |
 
-### 前端 (Frontend)
+### Manager — 管理后台（Spring Boot 2.5.15 + Java 8）
 
 | 技术 | 版本 / 说明 |
 |------|------------|
-| Vue | 3.4 (Composition API) |
-| Vite | 5.4 |
-| Vue Router | 4.3 (Hash 模式) |
-| Pinia | 2.1 (状态管理) |
-| Vant | 4.8 (移动端 UI 组件库) |
-| Axios | 1.6 (HTTP 请求) |
-| 百度地图 JS SDK | 地图选点 & 路径展示 |
+| **Java** | 1.8 |
+| **Spring Boot** | 2.5.15 |
+| **若依框架 (RuoYi)** | 4.7.8 |
+| **Shiro** | 1.13.0 (认证 & 授权) |
+| **Thymeleaf** | 模板引擎 + thymeleaf-extras-shiro 2.1.0 |
+| **MyBatis** | 原生 MyBatis + pagehelper 1.4.7 |
+| **Druid** | 1.2.20 (读写分离) |
+| **MySQL** | mysql-connector-java 8.0.33 |
+| **RabbitMQ** | Spring AMQP — AI 文档向量化消息 |
+| **MinIO** | 6.0.13 — 文件对象存储 |
+| **Redis** | Spring Data Redis — 向量存储 |
+| **DashScope SDK** | 2.16.7 — 千问 Embedding 向量化 |
+| **Apache POI** | 4.1.2 — Excel 导入导出 |
+| **Velocity** | 2.3 — 代码生成模板 |
+| **Quartz** | 定时任务 |
+| **Swagger (springfox)** | 3.0.0 — API 文档 |
+| **Kaptcha** | 2.3.3 — 验证码 |
+| **Fastjson** | 1.2.83 |
+| **Lombok** | provided |
+
+### Frontend — 前端（Vue 3 + Vite）
+
+| 技术 | 版本 / 说明 |
+|------|------------|
+| **Vue** | 3.4 (Composition API) |
+| **Vite** | 5.4 |
+| **Vue Router** | 4.3 (Hash 模式) |
+| **Pinia** | 2.1 (状态管理) |
+| **Vant** | 4.8 (移动端 UI 组件库) |
+| **Axios** | 1.6 (HTTP 请求) |
+| **百度地图 JS SDK** | 地图选点 & 路径展示 |
+
+### AI 能力总览
+
+| 能力 | Backend | Manager |
+|------|---------|---------|
+| 对话模型 | ✅ 千问 (qwen-plus) | — |
+| 流式 SSE 输出 | ✅ SseEmitter + Flux\<String\> | — |
+| Embedding 向量化 | ✅ Spring AI OpenAI Embedding | ✅ DashScope SDK text-embedding-v1 |
+| Redis 向量存储 | ✅ VectorStore (RediSearch KNN) | ✅ 原生 HSET + FT.SEARCH |
+| 知识库检索 | ✅ KnowledgeBaseService | ✅ VectorStoreService |
+| PDF 解析 | ✅ PagePdfDocumentReader | — |
+| DOCX 解析 | ✅ Apache POI | — |
+| 天气查询 | ✅ FunctionCallback (Open-Meteo) | — |
+| Markdown 渲染 | ✅ 前端 AiRoute | — |
+| 会话管理 | ✅ MySQL 持久化 + API | — |
 
 ---
 
@@ -585,6 +632,105 @@ npm run dev
 
 > 所有表均包含审计字段：`REVISION`, `CREATED_BY`, `CREATED_TIME`, `UPDATED_BY`, `UPDATED_TIME`。
 > 主键 ID 使用雪花算法 (Snowflake) 生成。
+
+### AI 新增表
+
+| 表名 | 说明 | 主要字段 |
+|------|------|---------|
+| `t_chat_message` | AI 聊天消息记录 | id, conversation_id, user_id, role(user/assistant), content, created_time |
+| `t_ai_msg` | 资讯库 | id, category, title, pic, content, create_time, update_time |
+| `t_ai_files` | 文件库 | id, name, url |
+| `t_ai_vector_ids` | 向量ID映射 | id, type, source_id, document_id |
+
+---
+
+## 智能问路（AI 聊天）
+
+> 基于 Spring AI 1.1.8 + 通义千问 (DashScope OpenAI 兼容) 打造的全栈 AI 出行助手。
+
+### 架构
+
+```
+Frontend (AiRoute.vue)
+  │ POST /ai/chat/stream (SSE)
+  ▼
+AiChatController ──→ AiChatService ──→ ChatClient (Spring AI)
+  │                       │
+  │                       ├─ ChatModel (千问 qwen-plus)
+  │                       ├─ VectorStore (Redis Stack 知识库检索)
+  │                       ├─ WeatherService (Open-Meteo 天气查询)
+  │                       ├─ ChatMessageMapper (MySQL 会话记忆)
+  │                       └─ FunctionCallback (工具调用)
+  ▼
+SseEmitter → 逐 token 推送 → 前端流式渲染
+```
+
+### API 接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| **POST** | `/ai/chat` | 非流式对话 |
+| **POST** | `/ai/chat/stream` | SSE 流式对话，逐 token 输出 |
+| **GET** | `/ai/chat/history/{conversationId}` | 会话历史消息 |
+| **GET** | `/ai/chat/conversations` | 用户会话列表（含 lastTime） |
+| **GET** | `/ai/chat/messages` | 用户全部聊天记录（跨会话） |
+
+### 功能特性
+
+| 特性 | 说明 |
+|------|------|
+| **流式输出** | SseEmitter + Flux\<String\>，AI 回复逐字渲染 |
+| **会话管理** | MySQL 持久化，支持多会话切换、历史回查 |
+| **知识库检索** | Redis Stack KNN 向量搜索，自动注入 System Prompt |
+| **天气查询** | FunctionCallback 自动调用 Open-Meteo API |
+| **Markdown 渲染** | 前端 `renderMd()` 支持粗体/标题/列表/代码 |
+| **文档向量化** | MqReceiver 消息驱动，PDF/DOCX/TXT 自动 Embedding 入库 |
+| **多模型** | OpenAI 兼容协议，可切 qwen-plus/turbo/max |
+
+### 向量检索流程
+
+```
+文档入库:
+  MqReceiver → FileHandler.parseFile()
+    ↓ 后缀分流
+  PDF → PagePdfDocumentReader
+  DOCX → XWPFWordExtractor
+  TXT → TextReader
+  MD → TextReader
+    ↓
+  TokenTextSplitter (1000 token/块)
+    ↓
+  VectorStore.add() → Redis Stack (HNSW + COSINE)
+    ↓
+  AiVectorIds.save() → 记录 sourceId ↔ documentId 映射
+
+检索：
+  AiChatService.chatStream()
+    → VectorStore.similaritySearch(query, topK=3)
+    → 拼接知识上下文 → 注入 System Prompt
+```
+
+### 配置要点
+
+```yaml
+spring:
+  ai:
+    openai:
+      api-key: ${DASHSCOPE_API_KEY}
+      base-url: https://dashscope.aliyuncs.com/compatible-mode   # 千问 OpenAI 兼容
+      chat:
+        options:
+          model: qwen-plus
+          temperature: 0.7
+      embedding:
+        options:
+          model: text-embedding-v1
+    vectorstore:
+      redis:
+        initialize-schema: true
+        index: hitch-knowledge
+        prefix: "hitch-doc:"
+```
 
 ---
 

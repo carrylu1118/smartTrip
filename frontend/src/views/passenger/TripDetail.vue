@@ -227,7 +227,7 @@ onBeforeUnmount(() => {
 <style scoped>
 /* 行程信息卡片 */
 .trip-title { font-size: 18px; font-weight: 600; color: #333; text-align: center; margin: 12px 0; }
-.info-card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+.info-card { background: #fff; border-radius: 10px; padding: 14px; margin: 0 12px 14px; }
 .info-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; color: #333; }
 
 .section-title { font-size: 15px; font-weight: 700; color: #1A1A2E; margin-bottom: 8px; }
