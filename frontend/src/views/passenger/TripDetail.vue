@@ -2,11 +2,12 @@
   <div class="page-container">
     <AppHeader title="行程详情" show-back @click-left="onBack" />
 
-    <div class="card" v-if="trip">
-      <div class="text-lg text-bold">{{ trip.departureTime ? String(trip.departureTime).substring(0,16) : '' }}</div>
-      <div class="flex-between mt-sm"><span class="text-secondary">出发</span><span class="text-bold">{{ trip.startAddr || '' }}</span></div>
-      <div class="flex-between mt-sm"><span class="text-secondary">到达</span><span class="text-bold">{{ trip.endAddr || '' }}</span></div>
-      <div class="flex-between mt-sm"><span class="text-secondary">状态</span><span style="color:#F59E0B">邀请中</span></div>
+    <div class="trip-title">搭乘中，待匹配……</div>
+    <div class="info-card" v-if="trip">
+      <div class="info-row"><van-icon name="clock-o" /><span>{{ formatTime(trip.departureTime) }}</span></div>
+      <div class="info-row"><van-icon name="location-o" color="#4caf50" /><span>{{ trip.startAddr || '' }}</span></div>
+      <div class="info-row"><van-icon name="flag-o" color="#f44336" /><span>{{ trip.endAddr || '' }}</span></div>
+      <div class="info-row"><van-icon name="info-o" color="#F59E0B" /><span style="color:#F59E0B;font-weight:500">邀请中</span></div>
     </div>
 
     <!-- 邀请我的 -->
@@ -92,6 +93,11 @@ function onBack() {
   } else {
     router.back()
   }
+}
+
+function formatTime(t) {
+  if (!t) return ''
+  return String(t).substring(0, 16)
 }
 
 function diffDate(d1, d2) { var diff = Math.abs(new Date(d1) - new Date(d2)) / 1000; var hours = Math.floor(diff / 3600); var minutes = Math.floor(diff % 3600 / 60); if (hours > 0) return hours + "小时" + minutes + "分"; return minutes + "分" }
@@ -219,6 +225,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* 行程信息卡片 */
+.trip-title { font-size: 18px; font-weight: 600; color: #333; text-align: center; margin: 12px 0; }
+.info-card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+.info-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; color: #333; }
+
 .section-title { font-size: 15px; font-weight: 700; color: #1A1A2E; margin-bottom: 8px; }
 .driver-card { cursor: pointer; }
 .driver-card:active { background: #f9f9f9; }
