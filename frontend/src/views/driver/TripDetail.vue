@@ -16,7 +16,8 @@
         <van-image round width="44" height="44" :src="item.avatar || defaultAvatar" fit="cover" />
         <div class="invite-info">
           <div class="invite-name">{{ item.useralias || '用户' }} <span class="status-tag s-confirmed">已确认</span></div>
-          <div class="invite-route">{{ item.startAddr || '' }} → {{ item.endAddr || '' }}</div>
+          <div class="invite-route">起: {{ item.startAddr || '' }} ({{ item.startDistance || 0 }}km) → 终: {{ item.endAddr || '' }} ({{ item.endDistance || 0 }}km)</div>
+          <div class="invite-meta" v-if="item._diffDate">时间差: {{ item._diffDate }}</div>
         </div>
         <van-icon name="arrow" color="#ccc" />
       </div>
@@ -87,9 +88,17 @@ function paxStatusClass(p) {
   return inv ? (statusClassMap[inv.status] || '') : ''
 }
 
-const confirmedInvites = computed(() =>
-  reqList.value.filter(r => r.status === 1)
-)
+const confirmedInvites = computed(() => {
+  const list = reqList.value.filter(r => r.status === 1)
+  // 按 ID 倒序
+  list.sort((a, b) => (b.id || 0) - (a.id || 0))
+  // 补时间差
+  const tripTime = trip.value ? trip.value.departureTime : null
+  list.forEach(r => {
+    r._diffDate = tripTime && r.departureTime ? diffDate(tripTime, r.departureTime) : ''
+  })
+  return list
+})
 
 const confirmedPax = computed(() =>
   passengers.value.filter(p => { const inv = getInvite(p); return inv && inv.status === 1 })

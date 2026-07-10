@@ -111,7 +111,10 @@ async function loadInvites() {
   try {
     const res = await strokeApi.inviteList(route.params.id)
     if (res.code === 200) {
-      inviteList.value = res.data || []
+      const raw = res.data || []
+      // 按 ID 倒序排列，保证顺序稳定
+      raw.sort((a, b) => (b.id || 0) - (a.id || 0))
+      inviteList.value = raw
     }
   } catch { /* ignore */ }
   inviteLoading.value = false
