@@ -517,10 +517,10 @@ CREATE TABLE `t_vehicle` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='车辆信息表';
 
 
-DROP VIEW IF EXISTS `v_dict`;
+create view `v_dict` as
 select `st`.`dict_name` AS `dict_name`,`st`.`dict_type` AS `dict_type`,`sd`.`dict_label` AS `dict_label`,`sd`.`dict_value` AS `dict_value`,`sd`.`is_default` AS `is_default`,`sd`.`remark` AS `remark` from `hitch`.`sys_dict_data` `sd` join `hitch`.`sys_dict_type` `st` where ((`sd`.`dict_type` = `st`.`dict_type`) and (`sd`.`status` = 0) and (`st`.`status` = 0)) order by `st`.`dict_type`,`sd`.`dict_sort`;
 
-DROP VIEW IF EXISTS `v_ai_msg`;
+create view `v_ai_msg` as
 select `m`.`id` AS `id`,`m`.`category` AS `category`,`m`.`title` AS `title`,`m`.`pic` AS `pic`,`m`.`content` AS `content`,`m`.`create_time` AS `create_time`,`m`.`update_time` AS `update_time`,`d`.`dict_name` AS `dict_name`,`d`.`dict_type` AS `dict_type`,`d`.`dict_label` AS `dict_label`,`d`.`dict_value` AS `dict_value`,`d`.`is_default` AS `is_default`,`d`.`remark` AS `remark` from `hitch`.`t_ai_msg` `m` join `hitch`.`v_dict` `d` where ((`d`.`dict_type` = 'ai_msg_category') and (`m`.`category` = `d`.`dict_value`));
 
 INSERT INTO `gen_table` (`table_id`, `table_name`, `table_comment`, `sub_table_name`, `sub_table_fk_name`, `class_name`, `tpl_category`, `package_name`, `module_name`, `business_name`, `function_name`, `function_author`, `gen_type`, `gen_path`, `options`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`) VALUES
