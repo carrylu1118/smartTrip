@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  * 资讯消息向量化处理器
- *
+ * TODO: 任务5.2.2 - 完成消费端AI消息处理
  * <p>将 AiMsg 的 title + content 拼接后 Embedding 存入 Redis 向量库，
  * 通过 AiVectorIds 表维护 MySQL ID 与向量库 documentId 的映射关系。
  */
@@ -38,30 +38,17 @@ public class MsgHandler implements MqHandler {
 
     @Override
     public void add(String ids) {
-        for (Integer id : parseIds(ids)) {
-            AiMsg msg = aiMsgService.getById(id);
-            if (msg == null) {
-                log.warn("AiMsg not found: id={}", id);
-                continue;
-            }
 
-            // 拼接多字段用于 Embedding：标题 + 分类 + 内容
-            String embeddingText = buildEmbeddingText(msg);
-            Document doc = new Document(embeddingText, Map.of(
-                    "sourceId", String.valueOf(msg.getId()),
-                    "type", TYPE,
-                    "category", String.valueOf(msg.getCategory() != null ? msg.getCategory() : 0)
-            ));
-            vectorStore.add(List.of(doc));
-            log.info("Vector doc added for AiMsg id={}", id);
+        //根据id，用aiMsgService，从数据库中查出AiMsg的记录
 
-            // 记录映射
-            AiVectorIds mapping = new AiVectorIds();
-            mapping.setType(TYPE);
-            mapping.setSourceId(String.valueOf(msg.getId()));
-            mapping.setDocumentId(doc.getId());
-            aiVectorIdsService.save(mapping);
-        }
+        //使用org.springframework.ai.document.Document对象完成向量化对象的封装
+        //Document doc = new Document(xxx)
+
+        //使用vectorStore.add(xxx)完成向量化入库
+
+        //Document存储后，会自动在对象里生成向量化redis里的id
+        //使用aiVectorIdsService保存到mysql中间表，将来删除要用到！
+
     }
 
     @Override
@@ -73,23 +60,18 @@ public class MsgHandler implements MqHandler {
 
     @Override
     public void delete(String ids) {
-        for (Integer id : parseIds(ids)) {
-            AiVectorIds mapping = aiVectorIdsService.getByTypeAndSourceId(TYPE, String.valueOf(id));
-            if (mapping == null) {
-                continue;
-            }
-            try {
-                vectorStore.delete(List.of(mapping.getDocumentId()));
-                log.info("Vector doc deleted: docId={}", mapping.getDocumentId());
-            } catch (Exception e) {
-                log.warn("Vector delete failed for docId={}: {}", mapping.getDocumentId(), e.getMessage());
-            }
-            aiVectorIdsService.removeByDocumentId(mapping.getDocumentId());
-        }
+        //根据传过来的mysql ids值，使用aiVectorIdsService从中间件里查出document_id
+
+        //使用vectorStore.delete删除redis里的向量数据
+
+        //使用aiVectorIdsService删除mysql中间表里的数据
+
     }
 
     // ---- 内部 ----
 
+    //工具：如果ids传过来是英文逗号分割的多个id，调用此方法先切割成单个
+    //一般用不到，因为ids基本就是1个id
     private List<Integer> parseIds(String ids) {
         return Arrays.stream(ids.split(","))
                 .map(String::trim)
@@ -98,6 +80,7 @@ public class MsgHandler implements MqHandler {
                 .toList();
     }
 
+    //工具：把消息表里有价值的字段组装成一句话，整体写入向量库
     private String buildEmbeddingText(AiMsg msg) {
         StringBuilder sb = new StringBuilder();
         if (msg.getTitle() != null && !msg.getTitle().isEmpty()) {
