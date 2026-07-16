@@ -33,7 +33,7 @@ public class SpringAIConfig {
     public ChatClient chatClient() {
         return ChatClient.builder(chatModel)
                 .defaultSystem(SYSTEM_PROMPT)
-//                .defaultTools(weatherService)
+                .defaultTools(weatherService)
                 .defaultAdvisors(
                         QuestionAnswerAdvisor.builder(vectorStore).searchRequest(
                                 SearchRequest.builder()

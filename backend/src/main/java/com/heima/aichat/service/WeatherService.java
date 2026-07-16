@@ -44,7 +44,7 @@ public class WeatherService {
      */
     private Map<String, Double> geocode(String city) throws Exception {
         //根据city名称拼接查询geo的url
-        //官方参考：https://open-meteo.com/en/docs/cma-api
+        //官方参考：https://open-meteo.com/en/docs/geocoding-api
 
         //发起http请求，请求上述url得到返回的json
 
