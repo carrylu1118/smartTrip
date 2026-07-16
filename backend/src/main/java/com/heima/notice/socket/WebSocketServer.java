@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-//TODO:任务5.1-完成websocket开发-2
 @Component
 @ServerEndpoint(value = "/notice/ws/socket")
 public class WebSocketServer {

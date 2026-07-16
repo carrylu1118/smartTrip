@@ -36,7 +36,6 @@ public class MQConsumer{
     @RabbitListener(queues ={RabbitConfig.STROKE_DEAD_QUEUE})
     @RabbitHandler
     public void processStroke(Message massage, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long tag) {
-        //TODO:【allinone】任务4.3-接收死信队列消息(以下代码已完成，用于验证配置和发送无误)
         StrokeVO strokeVO = JSON.parseObject(massage.getBody(), StrokeVO.class);
         logger.info("get dead msg:{}",massage.getBody());
         if (null == strokeVO) {

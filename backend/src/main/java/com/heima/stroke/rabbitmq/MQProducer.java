@@ -10,7 +10,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-//TODO:任务4.2-发送邀请消息
 @Component
 public class MQProducer {
     private final static Logger logger = LoggerFactory.getLogger(MQProducer.class);
