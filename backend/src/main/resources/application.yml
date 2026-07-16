@@ -4,17 +4,17 @@ server:
 spring:
   data:
     mongodb:
-      host: 172.28.65.82
+      host: 192.168.64.100
       port: 27017
       database: notice
     redis:
       client-type: jedis
-      host: 172.28.65.82
+      host: 192.168.64.100
       port: 6379
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://172.28.65.82:3306/hitch?useUnicode=true&characterEncoding=UTF-8
+    url: jdbc:mysql://192.168.64.100:3306/hitch?useUnicode=true&characterEncoding=UTF-8
     username: root
     password: root
     druid:
@@ -23,7 +23,7 @@ spring:
       max-active: 100
       max-wait: 60000
   rabbitmq:
-    host: 172.28.65.82
+    host: 192.168.64.100
     port: 5672
     username: guest
     password: guest
@@ -55,8 +55,8 @@ spring:
 
 # MinIO
 minio:
-  url: http://172.28.65.82:9005
-  host: 172.28.65.82
+  url: http://192.168.64.100:9005
+  host: 192.168.64.100
   port: 9005
   bucket: hitch
   username: minioadmin
