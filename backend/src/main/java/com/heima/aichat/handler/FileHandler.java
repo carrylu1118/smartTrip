@@ -25,7 +25,7 @@ import java.util.*;
 
 /**
  * 文件向量化处理器
- *
+ * TODO: 任务6.2.2 - 完成消费端消息处理（文件类消息）
  * <p>根据文件 URL 后缀判断类型，使用对应的 DocumentReader 解析文件内容，
  * 将解析后的文本片段写入 Redis 向量库。支持 PDF、DOCX、TXT。
  */
@@ -46,39 +46,26 @@ public class FileHandler implements MqHandler {
 
     @Override
     public void add(String ids) {
-        for (Integer id : parseIds(ids)) {
-            AiFiles file = aiFilesService.getById(id);
-            if (file == null) {
-                log.warn("AiFiles not found: id={}", id);
-                continue;
-            }
-            if (file.getUrl() == null || file.getUrl().isEmpty()) {
-                log.warn("AiFiles url is empty: id={}", id);
-                continue;
-            }
 
-            try {
-                List<Document> docs = parseFile(file);
-                if (docs.isEmpty()) {
-                    log.warn("No content extracted from file: id={}", id);
-                    continue;
-                }
+        //使用aiFilesService，根据id从数据库中查到对应的AiFiles
 
-                vectorStore.add(docs);
-                log.info("Vector docs added for AiFiles id={}, count={}", id, docs.size());
 
-                // 每个文档多条映射：同一 sourceId，不同 documentId
-                for (Document doc : docs) {
-                    AiVectorIds mapping = new AiVectorIds();
-                    mapping.setType(TYPE);
-                    mapping.setSourceId(String.valueOf(file.getId()));
-                    mapping.setDocumentId(doc.getId());
-                    aiVectorIdsService.save(mapping);
-                }
-            } catch (Exception e) {
-                log.error("Failed to process file id={}, url={}: {}", id, file.getUrl(), e.getMessage());
-            }
-        }
+        //判断AiFiles里url的后缀名是什么，目前可以只开发（pdf，md，txt文件）
+
+
+        //spring根据不同的文件类型提供了不同的DocumentReader
+        // pdf ==> PagePdfDocumentReader
+        // md,txt ==> TextReader
+        //研究一下这些Reader的使用
+
+
+        //注意！如果返回的Document过长，可能会报错，这里提供了一个切分工具：splitIfNeeded，可能会帮到你
+
+
+        //调用vectorStore.add，将reader返回的documents写入redis向量库
+
+        //调用aiVectorIdsService，把document的id和mysql里aifiles的id写进中间表，后续删除要用到
+
     }
 
     @Override
@@ -89,20 +76,7 @@ public class FileHandler implements MqHandler {
 
     @Override
     public void delete(String ids) {
-        for (Integer id : parseIds(ids)) {
-            List<AiVectorIds> mappings = aiVectorIdsService.listByTypeAndSourceId(TYPE, String.valueOf(id));
-            if (mappings.isEmpty()) {
-                continue;
-            }
-            List<String> docIds = mappings.stream()
-                    .map(AiVectorIds::getDocumentId)
-                    .toList();
-            vectorStore.delete(docIds);
-            log.info("Vector docs deleted: sourceId={}, count={}", id, docIds.size());
-            for (AiVectorIds m : mappings) {
-                aiVectorIdsService.removeByDocumentId(m.getDocumentId());
-            }
-        }
+        //参考任务5.2.2里的删除思路
     }
 
     // ---- 内部 ----
@@ -130,33 +104,17 @@ public class FileHandler implements MqHandler {
     }
 
     private List<Document> parsePdf(String url) {
-        PagePdfDocumentReader reader = new PagePdfDocumentReader(
-                url,
-                PdfDocumentReaderConfig.builder()
-                        .withPageExtractedTextFormatter(
-                                ExtractedTextFormatter.builder()
-                                        .withNumberOfTopTextLinesToDelete(1)
-                                        .withNumberOfBottomTextLinesToDelete(1)
-                                        .overrideLineSeparator("\n")
-                                        .build()
-                        )
-                        .withPagesPerDocument(1)
-                        .build()
-        );
-        List<Document> documents = reader.read();
-        log.info("Pdf documents read: {}", documents.size());
-        return splitIfNeeded(documents);
+
+        return splitIfNeeded(null);
     }
 
     private List<Document> parseText(String url) {
-        TextReader reader = new TextReader(url);
-        List<Document> documents = reader.read();
-        log.info("Text documents read: {}", documents.size());
-        return splitIfNeeded(documents);
+
+        return splitIfNeeded(null);
     }
 
     /**
-     * 对大文档做 Token 分块，避免单个 Document 超过 Embedding token 上限
+     * 工具：对大文档做 Token 分块，避免单个 Document 超过 Embedding token 上限
      */
     private List<Document> splitIfNeeded(List<Document> docs) {
         if (docs == null || docs.isEmpty()) {

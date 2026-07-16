@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  * 资讯消息向量化处理器
- * TODO: 任务5.2.2 - 完成消费端AI消息处理
+ * TODO: 任务5.2.2 - 完成消费端AI消息处理（资讯类消息）
  * <p>将 AiMsg 的 title + content 拼接后 Embedding 存入 Redis 向量库，
  * 通过 AiVectorIds 表维护 MySQL ID 与向量库 documentId 的映射关系。
  */
