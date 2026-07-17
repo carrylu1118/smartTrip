@@ -51,27 +51,27 @@ public class AiChatService {
 
         //拼接到chatClient
         return chatClient.prompt()
-                //.messages(null)   //历史消息
-                //.user(null)    //用户当前消息
-                .stream()
-                .content()
-                .map(chunk -> {
-                    //流式输出的每个小片段
-                    //需要使用外部变量收集这些小片段，最后整体给doOnComplete存库用
+            //.messages(null)   //历史消息
+            //.user(null)    //用户当前消息
+            .stream()
+            .content()
+            .map(chunk -> {
+                //流式输出的每个小片段
+                //需要使用外部变量收集这些小片段，最后整体给doOnComplete存库用
 
 
-                    return chunk != null ? chunk : "";
-                })
-                .doOnComplete(() -> {
-                    //全部流式输出完成后的动作：保存新的消息到历史记录表（角色：assistant）
+                return chunk != null ? chunk : "";
+            })
+            .doOnComplete(() -> {
+                //全部流式输出完成后的动作：保存新的消息到历史记录表（角色：assistant）
 
 
-                    log.info("流式输出完成: cid={}", cid);
-                })
-                .onErrorResume(err -> {
-                    err.printStackTrace();
-                    return Flux.just("抱歉，AI 服务暂时不可用。");
-                });
+                log.info("流式输出完成: cid={}", cid);
+            })
+            .onErrorResume(err -> {
+                err.printStackTrace();
+                return Flux.just("抱歉，AI 服务暂时不可用。");
+            });
     }
 
     public List<ChatMessagePO> getHistory(String conversationId) {
