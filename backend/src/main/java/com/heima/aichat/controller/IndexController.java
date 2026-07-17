@@ -15,10 +15,10 @@ import java.util.Collections;
 @Controller
 @RequestMapping("")
 public class IndexController {
-    @GetMapping("")
-    public String index(){
-        return "redirect:/web/login.html";
-    }
+//    @GetMapping("")
+//    public String index(){
+//        return "redirect:/web/login.html";
+//    }
 
     @GetMapping(value = "/api/chat2", produces = "text/html;charset=utf-8")
     public Flux<String> stream2(@RequestParam String msg) {
