@@ -68,7 +68,8 @@ import * as aiApi from '@/api/ai'
 
 const router = useRouter()
 
-const conversationId = ref('')
+const CONVERSATION_ID_KEY = 'AI_CURRENT_CONVERSATION_ID'
+const conversationId = ref(sessionStorage.getItem(CONVERSATION_ID_KEY) || '')
 const messages = ref([])
 const inputText = ref('')
 const sending = ref(false)
@@ -76,6 +77,27 @@ const loading = ref(false)
 const chatList = ref(null)
 const showConvSheet = ref(false)
 const convList = ref([])
+
+function generateConversationId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return `conv-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`
+}
+
+function setConversationId(cid) {
+  conversationId.value = cid
+  if (cid) {
+    sessionStorage.setItem(CONVERSATION_ID_KEY, cid)
+  } else {
+    sessionStorage.removeItem(CONVERSATION_ID_KEY)
+  }
+}
+
+function createNewConversation() {
+  setConversationId(generateConversationId())
+  messages.value = []
+}
 
 // 会话列表，动态构建 action sheet 选项
 const convActions = computed(() => {
@@ -166,12 +188,11 @@ async function loadHistory(cid) {
 function onConvSelect(action) {
   showConvSheet.value = false
   if (action.name === '创建新对话') {
-    // 新建会话
-    conversationId.value = ''
-    messages.value = []
+    // 前端先生成会话 ID，确保本轮所有消息始终归属同一会话
+    createNewConversation()
   } else {
     // 切换到旧会话
-    conversationId.value = action.cid
+    setConversationId(action.cid)
     loadHistory(action.cid)
   }
 }
@@ -179,6 +200,11 @@ function onConvSelect(action) {
 async function send() {
   const text = inputText.value.trim()
   if (!text || sending.value) return
+
+  // 首次没有历史会话时也必须由前端创建 ID，禁止向后端发送空 conversationId
+  if (!conversationId.value) {
+    setConversationId(generateConversationId())
+  }
 
   messages.value.push({ role: 'user', content: text, conversationId: conversationId.value })
   inputText.value = ''
@@ -213,12 +239,15 @@ async function send() {
 
 onMounted(async () => {
   await loadConvList()
-  // 默认加载最近一次会话的历史记录
-  if (convList.value.length > 0) {
+
+  // 优先恢复本标签页暂存的会话；没有暂存时再加载最近一次历史会话
+  if (conversationId.value) {
+    await loadHistory(conversationId.value)
+  } else if (convList.value.length > 0) {
     const first = convList.value[0]
     const cid = first.conversationId || first.conversation_id || ''
     if (cid) {
-      conversationId.value = cid
+      setConversationId(cid)
       await loadHistory(cid)
     }
   }
