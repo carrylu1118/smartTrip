@@ -1,6 +1,6 @@
 <template>
   <div class="message-page">
-    <van-nav-bar title="即时消息" left-arrow @click-left="router.back" fixed />
+    <van-nav-bar :title="chatTitle" left-arrow @click-left="router.back" fixed />
 
     <!-- 消息列表 -->
     <div ref="msgList" class="msg-list">
@@ -43,8 +43,24 @@ const currentUserId = localStorage.getItem('SESSION_TOKEN_KEY') || ''
 const messages = ref([])
 const text = ref('')
 const msgList = ref(null)
+const chatTitle = ref('即时消息')
 
 let ws = null
+
+function updateChatTitle(list = messages.value) {
+  const peerMessage = list.find(msg =>
+    String(msg.senderId || '') === String(receiverId)
+    || String(msg.receiverId || '') === String(receiverId)
+    || String(msg.senderId || '') !== String(currentUserId)
+  )
+  if (!peerMessage) return
+
+  const isMine = String(peerMessage.senderId || '') === String(currentUserId)
+  const peerName = isMine
+    ? peerMessage.receiverUseralias
+    : peerMessage.senderUseralias
+  if (peerName) chatTitle.value = peerName
+}
 
 // 滚动到底部
 function scrollToBottom() {
@@ -64,6 +80,7 @@ async function loadHistory() {
     } else if (Array.isArray(res)) {
       messages.value = res
     }
+    updateChatTitle(messages.value)
     scrollToBottom()
   } catch (err) {
     console.error('Load history error:', err)
@@ -95,6 +112,7 @@ function initWebSocket() {
       if (data.senderId !== currentUserId
           && String(data.receiverId || '') === String(currentUserId)) {
         messages.value.push(data)
+        updateChatTitle([data])
         scrollToBottom()
       } else if (data.senderId !== currentUserId) {
         // 跨会话消息：只同步到全局通知列表
