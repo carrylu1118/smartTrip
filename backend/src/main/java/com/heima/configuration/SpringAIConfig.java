@@ -34,6 +34,7 @@ public class SpringAIConfig {
     @Bean
     public ChatClient chatClient() {
         return ChatClient.builder(chatModel)
+                .defaultSystem(SYSTEM_PROMPT) //提示词
 //                .defaultXXXX  代码在这里增强
                 .build();
     }
