@@ -40,29 +40,33 @@ public class AiChatService {
     @Autowired
     private ChatClient chatClient;
 
-    // ---- 流式 ----
+    // TODO: 任务4.2.3 - 完成ChatClient配置
     public Flux<String> chatStream(String conversationId, String userId, String userMessage) {
         conversationId = ensureCid(conversationId);
         final String cid = conversationId;
-        saveMessage(cid, userId, "user", userMessage);
 
-        List<Message> history = buildHistory(cid);
-        StringBuilder fullReply = new StringBuilder();
+        //保存新的用户消息到历史记录表（角色：user）
 
+        //查询最近的20条记录  参考buildHistory()
+
+        //拼接到chatClient
         return chatClient.prompt()
-                .messages(history)
-                .user(userMessage)
+                //.messages(null)   //历史消息
+                //.user(null)    //用户当前消息
                 .stream()
                 .content()
                 .map(chunk -> {
-                    if (chunk != null) {
-                        fullReply.append(chunk);
-                    }
+                    //流式输出的每个小片段
+                    //需要使用外部变量收集这些小片段，最后整体给doOnComplete存库用
+
+
                     return chunk != null ? chunk : "";
                 })
                 .doOnComplete(() -> {
-                    saveMessage(cid, userId, "assistant", fullReply.toString());
-                    log.info("Stream done: cid={}, len={}", cid, fullReply.length());
+                    //全部流式输出完成后的动作：保存新的消息到历史记录表（角色：assistant）
+
+
+                    log.info("流式输出完成: cid={}", cid);
                 })
                 .onErrorResume(err -> {
                     err.printStackTrace();
@@ -84,22 +88,33 @@ public class AiChatService {
 
     // ---- 内部 ----
 
+    //工具：检查conversationId是否为空，如果空，生成一个新的并返回
     private String ensureCid(String cid) {
         return (cid == null || cid.isEmpty())
                 ? UUID.randomUUID().toString().replace("-", "") : cid;
     }
 
+    //保存对话记录到mysql
     private void saveMessage(String cid, String uid, String role, String content) {
         chatMessageMapper.insert(new ChatMessagePO(
                 UUID.randomUUID().toString().replace("-", ""), cid, uid, role, content));
     }
 
+    // TODO: 任务4.2.4 - 完成会话上下文封装
     private List<Message> buildHistory(String conversationId) {
-        return chatMessageMapper.selectByConversationId(conversationId, MAX_HISTORY)
-                .stream().map(m -> "assistant".equals(m.getRole())
-                        ? (Message) new AssistantMessage(m.getContent())
-                        : (Message) new UserMessage(m.getContent()))
-                .collect(Collectors.toList());
+        //根据conversationId，使用chatMessageMapper查询历史消息
+
+        //遍历返回的列表，逐个检查消息的role
+
+        //注意返回的ChatMessagePO.role决定了你要使用哪种消息对象封装返回
+
+        //user -> UserMessage
+        //assistant -> AssistantMessage
+
+        //隐藏小技巧：history会话上下文是有长度限制的，建议20条
+
+
+        return null;
     }
 
 }
