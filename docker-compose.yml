@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  backend:
+    image: backend:1.0-SNAPSHOT
+    container_name: backend-app
+    ports:
+      - "9999:9999"
+    # restart: unless-stopped
+
+  manager:
+    image: manager:0.0.1-SNAPSHOT
+    container_name: manager-app
+    ports:
+      - "8888:8888"
+

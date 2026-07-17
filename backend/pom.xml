@@ -246,19 +246,22 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.spotify</groupId>
+                <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.4.13</version>
+                <version>0.46.0</version>
                 <configuration>
-                    <imageName>${project.name}:${project.version}</imageName>
-                    <dockerDirectory>docker</dockerDirectory>
-                    <resources>
-                        <resource>
-                            <targetPath>/</targetPath>
-                            <directory>${project.build.directory}</directory>
-                            <include>${project.build.finalName}.jar</include>
-                        </resource>
-                    </resources>
+                    <images>
+                        <image>
+                            <!-- 改成你的镜像名和标签 -->
+                            <name>${project.name}:${project.version}</name>
+                            <build>
+                                <!-- 指定 Dockerfile 位置 -->
+                                <dockerFile>${project.basedir}/docker/Dockerfile</dockerFile>
+                                <!-- 指定构建上下文（Dockerfile 中 COPY 的基准路径） -->
+                                <contextDir>${project.basedir}</contextDir>
+                            </build>
+                        </image>
+                    </images>
                 </configuration>
             </plugin>
         </plugins>
