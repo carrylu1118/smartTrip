@@ -256,6 +256,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-core</artifactId>
+            <version>3.5.15</version> <!-- 请使用你项目对应的最新稳定版本 -->
+        </dependency>
     </dependencies>
 
     <build>

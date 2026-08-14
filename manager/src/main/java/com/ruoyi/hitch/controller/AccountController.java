@@ -1,6 +1,9 @@
 package com.ruoyi.hitch.controller;
 
+import java.util.Date;
 import java.util.List;
+
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -86,6 +89,15 @@ public class AccountController extends BaseController
     @ResponseBody
     public AjaxResult addSave(Account account)
     {
+        // ✅ 直接用 MP 自带的雪花ID生成器
+        String snowId = IdWorker.getIdStr(); // 直接返回 String 类型的雪花ID
+        account.setId(snowId);
+
+        // 设置创建时间等
+        account.setCreatedTime(new Date());
+        account.setUpdatedTime(new Date());
+        account.setCreatedBy(snowId);
+        account.setUpdatedBy(snowId);
         return toAjax(accountService.insertAccount(account));
     }
 
