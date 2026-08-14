@@ -37,6 +37,18 @@ const routes = [
     component: () => import('@/views/Way.vue'),
     meta: { title: '路径规划' },
   },
+  {
+    path: '/news/list',
+    name: 'NewsList',
+    component: () => import('@/views/common/NewsList.vue'),
+    meta: { title: '资讯列表' },
+  },
+  {
+    path: '/news/detail/:id',
+    name: 'NewsDetail',
+    component: () => import('@/views/common/NewsDetail.vue'),
+    meta: { title: '资讯详情' },
+  },
 
   // 乘客端
   {

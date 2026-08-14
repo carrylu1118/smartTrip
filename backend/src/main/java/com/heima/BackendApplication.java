@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @EnableRequestInital
-@MapperScan({"com.heima.storage.mapper", "com.heima.aichat.mapper"})
+@MapperScan({"com.heima.storage.mapper", "com.heima.aichat.mapper", "com.heima.news.mapper"})
 @Import(SpringUtil.class)
 @EnableCaching
 @EnableTransactionManagement

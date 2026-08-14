@@ -19,6 +19,7 @@ export default defineConfig({
       '/storage':  { target: 'http://localhost:9999', changeOrigin: true },
       '/payment':  { target: 'http://localhost:9999', changeOrigin: true },
       '/ai':       { target: 'http://localhost:9999', changeOrigin: true },
+      '/news':     { target: 'http://localhost:9999', changeOrigin: true },
     },
   },
   resolve: {
