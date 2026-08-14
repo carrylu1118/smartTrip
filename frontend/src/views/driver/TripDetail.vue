@@ -42,7 +42,7 @@
           </div>
         </div>
         <div class="passenger-action">
-          <van-button size="small" icon="like-o" type="primary" color="#FF6B35" round @click.stop="onInvite(p)">邀请</van-button>
+          <van-button size="small" icon="like-o" type="primary" color="var(--color-primary)" round @click.stop="onInvite(p)">邀请</van-button>
         </div>
       </div>
 

@@ -214,7 +214,7 @@ onBeforeUnmount(() => {
 
 .msg-mine {
   margin-left: auto;
-  background: linear-gradient(135deg, #FF6B35, #FF8A5C);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
   color: #fff;
   border-bottom-right-radius: 4px;
 }

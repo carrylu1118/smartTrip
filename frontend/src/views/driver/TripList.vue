@@ -1,8 +1,8 @@
 <template>
   <div class="page">
     <AppHeader title="我的行程" @click-left="onSwitchRole">
-      <template #left><van-icon name="logistics" size="20" color="#FF6B35" /></template>
-      <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
+      <template #left><van-icon name="logistics" size="20" color="var(--color-primary)" /></template>
+      <template #right><van-icon name="service-o" size="20" color="var(--color-primary)" @click.stop="goAiRoute" /></template>
     </AppHeader>
 
     <div class="trip-banner driver-trip-banner">
@@ -100,5 +100,5 @@ onMounted(fetchList)
 .from-dot { background: #4caf50; } .to-dot { background: #f44336; }
 .addr { font-size: 14px; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #999; }
-.switch-btn { font-size: 14px; color: #FF6B35; font-weight: 500; }
+.switch-btn { font-size: 14px; color: var(--color-primary); font-weight: 500; }
 </style>

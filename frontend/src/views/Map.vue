@@ -121,10 +121,10 @@ onMounted(() => { initMap() })
 .map-page { position: relative; width: 100%; height: 100vh; overflow: hidden; }
 .map-toolbar { position: absolute; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
 .search-input { flex: 1; height: 36px; padding: 0 12px; border: 1px solid #E8EAF0; border-radius: 18px; font-size: 14px; outline: none; background: #F2F4F8; }
-.search-input:focus { border-color: #FF6B35; }
+.search-input:focus { border-color: var(--color-primary); }
 .btn-cancel, .btn-confirm { height: 36px; padding: 0 14px; border: none; border-radius: 18px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 .btn-cancel { background: #f0f0f0; color: #666; }
-.btn-confirm { background: linear-gradient(135deg, #FF6B35, #FF8A5C); color: #fff; }
+.btn-confirm { background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); color: #fff; }
 .btn-confirm:disabled { opacity: 0.4; }
 .result-list { position: absolute; top: 52px; left: 0; right: 0; z-index: 99; max-height: 240px; overflow-y: auto; background: #fff; border-bottom: 1px solid #E8EAF0; }
 .result-item { padding: 12px 16px; border-bottom: 1px solid #f5f5f5; cursor: pointer; }

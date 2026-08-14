@@ -1,8 +1,8 @@
 <template>
   <div class="page">
     <AppHeader title="我的订单" @click-left="onSwitchRole">
-      <template #left><van-icon name="logistics" size="20" color="#FF6B35" /></template>
-      <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
+      <template #left><van-icon name="logistics" size="20" color="var(--color-primary)" /></template>
+      <template #right><van-icon name="service-o" size="20" color="var(--color-primary)" @click.stop="goAiRoute" /></template>
     </AppHeader>
 
     <div class="trip-banner driver-order-banner">
@@ -107,5 +107,5 @@ onMounted(fetchList)
 .body-row .value { color: #333; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
 .price { color: #f44336 !important; font-weight: 500; }
 .card-footer { display: flex; justify-content: flex-end; gap: 8px; }
-.switch-btn { font-size: 14px; color: #FF6B35; font-weight: 500; }
+.switch-btn { font-size: 14px; color: var(--color-primary); font-weight: 500; }
 </style>

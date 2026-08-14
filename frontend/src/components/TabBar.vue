@@ -1,6 +1,6 @@
 <template>
   <div class="tabbar-wrapper">
-    <van-tabbar :model-value="active" :fixed="true" :safe-area-inset-bottom="true" active-color="#FF6B35">
+    <van-tabbar :model-value="active" :fixed="true" :safe-area-inset-bottom="true" active-color="var(--color-primary)">
       <van-tabbar-item
         v-for="item in tabs"
         :key="item.name"
@@ -72,7 +72,7 @@
           <!-- 乘客端：闪电确认 -->
           <div v-if="!isDriver" class="form-item flex-between">
             <label class="form-label">闪电确认</label>
-            <van-switch v-model="form.quickConfirm" size="26" active-color="#FF6B35" />
+            <van-switch v-model="form.quickConfirm" size="26" active-color="var(--color-primary)" />
           </div>
 
           <button class="btn-primary" :disabled="publishing" @click="onPublish">
@@ -242,8 +242,8 @@ async function onPublish() {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #FF6B35, #FF8A5C);
-  box-shadow: 0 4px 14px rgba(255, 107, 53, 0.4);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  box-shadow: 0 4px 14px var(--color-primary-shadow);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -253,7 +253,7 @@ async function onPublish() {
 }
 .center-btn:active {
   transform: translateX(-50%) scale(0.92);
-  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+  box-shadow: 0 2px 8px var(--color-primary-shadow);
 }
 
 /* 浮窗 */
@@ -295,6 +295,6 @@ async function onPublish() {
 }
 .range-input {
   width: 100%;
-  accent-color: #FF6B35;
+  accent-color: var(--color-primary);
 }
 </style>

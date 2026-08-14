@@ -109,7 +109,7 @@ onMounted(async () => {
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: linear-gradient(135deg, #FF6B35, #FF8A5C);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
   color: #fff;
   margin-bottom: 8px;
 }
@@ -191,7 +191,7 @@ onMounted(async () => {
 }
 
 .cost-minus {
-  color: #FF6B35;
+  color: var(--color-primary);
 }
 
 .order-status {

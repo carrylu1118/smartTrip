@@ -81,7 +81,7 @@
           round
           block
           type="primary"
-          color="#FF6B35"
+          color="var(--color-primary)"
           size="large"
           :loading="submitting"
           @click="onSubmit"

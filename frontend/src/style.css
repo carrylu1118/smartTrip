@@ -28,7 +28,7 @@
 
   /* 阴影 */
   --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
-  --shadow-button: 0 4px 12px rgba(255, 107, 53, 0.3);
+  --shadow-button: 0 4px 12px var(--color-primary-shadow);
 
   /* 圆角 */
   --radius-sm: 6px;

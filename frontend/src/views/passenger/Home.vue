@@ -1,8 +1,8 @@
 <template>
   <div class="page-container">
     <AppHeader title="乘客端 - 智驾游" :show-back="false" @click-left="onSwitchRole">
-      <template #left><van-icon name="user-o" size="20" color="#FF6B35" /></template>
-      <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
+      <template #left><van-icon name="user-o" size="20" color="var(--color-primary)" /></template>
+      <template #right><van-icon name="service-o" size="20" color="var(--color-primary)" @click.stop="goAiRoute" /></template>
     </AppHeader>
 
     <div class="welcome">
@@ -75,7 +75,7 @@ function goAiRoute() { router.push('/common/ai-route') }
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #FF6B35, #FF8A5C);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
   color: #fff;
   font-size: 16px;
   font-weight: 700;

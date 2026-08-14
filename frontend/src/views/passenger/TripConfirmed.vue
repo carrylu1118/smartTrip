@@ -20,7 +20,7 @@
             预计: {{ driver.time || driver.estimatedArrive || '-' }}分钟
           </div>
         </div>
-        <van-icon name="chat-o" size="24" color="#FF6B35" @click="goChat" />
+        <van-icon name="chat-o" size="24" color="var(--color-primary)" @click="goChat" />
       </div>
     </div>
 

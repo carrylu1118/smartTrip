@@ -120,7 +120,7 @@ onUnmounted(() => { stopPolling() })
 .amount {
   font-size: 36px;
   font-weight: 700;
-  color: #FF6B35;
+  color: var(--color-primary);
   margin-top: 8px;
 }
 .qr-img {

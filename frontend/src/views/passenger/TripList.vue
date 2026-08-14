@@ -1,8 +1,8 @@
 <template>
   <div class="page-container">
     <AppHeader title="我的行程" @click-left="onSwitchRole">
-      <template #left><van-icon name="user-o" size="20" color="#FF6B35" /></template>
-      <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
+      <template #left><van-icon name="user-o" size="20" color="var(--color-primary)" /></template>
+      <template #right><van-icon name="service-o" size="20" color="var(--color-primary)" @click.stop="goAiRoute" /></template>
     </AppHeader>
 
     <!-- Banner -->
@@ -101,6 +101,6 @@ onMounted(fetchList)
 .banner-sub { font-size: 12px; opacity: 0.85; margin-top: 4px; }
 .trip-card { cursor: pointer; }
 .trip-card:active { background: #f9f9f9; }
-.quick-tag { font-size: 11px; color: #FF6B35; background: #FFF3ED; padding: 2px 8px; border-radius: 10px; }
-.switch-btn { font-size: 14px; color: #FF6B35; font-weight: 500; }
+.quick-tag { font-size: 11px; color: var(--color-primary); background: #FFF3ED; padding: 2px 8px; border-radius: 10px; }
+.switch-btn { font-size: 14px; color: var(--color-primary); font-weight: 500; }
 </style>

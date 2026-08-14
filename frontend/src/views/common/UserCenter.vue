@@ -35,12 +35,33 @@
           <span v-if="unreadCount > 0" class="unread-dot"></span>
         </template>
       </van-cell>
+      <van-cell title="更换主题" is-link icon="gem-o" @click="showTheme = true" />
     </van-cell-group>
 
     <!-- 退出登录 -->
     <div class="logout-wrap">
       <button class="btn-secondary" @click="handleLogout">退出登录</button>
     </div>
+
+    <!-- 主题选择弹层 -->
+    <van-popup v-model:show="showTheme" position="bottom" round>
+      <div class="theme-panel">
+        <div class="theme-panel__title">更换主题</div>
+        <div
+          v-for="t in themeStore.themes"
+          :key="t.key"
+          class="theme-item"
+          @click="onSelectTheme(t.key)"
+        >
+          <span class="theme-item__dot" :style="{ background: t.primary }"></span>
+          <div class="theme-item__text">
+            <div class="theme-item__name">{{ t.name }}</div>
+            <div class="theme-item__desc">{{ t.desc }}</div>
+          </div>
+          <van-icon v-if="themeStore.current === t.key" name="success" :color="t.primary" />
+        </div>
+      </div>
+    </van-popup>
 
     <TabBar />
   </div>
@@ -51,6 +72,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showConfirmDialog } from 'vant'
 import { useAuthStore } from '@/stores/auth'
+import { useThemeStore } from '@/stores/theme'
 import { getUserInfo, getAuthInfo } from '@/api/account'
 import { useNoticeMessages } from '@/composables/useNotice'
 import AppHeader from '@/components/AppHeader.vue'
@@ -58,9 +80,11 @@ import TabBar from '@/components/TabBar.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
+const themeStore = useThemeStore()
 
 const user = ref({})
 const authInfo = ref({})
+const showTheme = ref(false)
 const { unreadCount } = useNoticeMessages()
 
 onMounted(async () => {
@@ -85,6 +109,11 @@ function handleLogout() {
     router.push('/login')
   }).catch(() => {})
 }
+
+function onSelectTheme(key) {
+  themeStore.setTheme(key)
+  showTheme.value = false
+}
 </script>
 
 <style scoped>
@@ -92,8 +121,8 @@ function handleLogout() {
   margin: 16px;
   padding: 24px 20px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #FF6B35, #FF8A5C);
-  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  box-shadow: 0 4px 16px var(--color-primary-shadow);
 }
 
 .user-card__inner {
@@ -158,8 +187,49 @@ function handleLogout() {
 }
 
 .logout-wrap .btn-secondary {
-  color: #FF6B35;
-  border-color: #FF6B35;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
 }
-.switch-btn { font-size: 14px; color: #FF6B35; font-weight: 500; }
+.switch-btn { font-size: 14px; color: var(--color-primary); font-weight: 500; }
+
+.theme-panel {
+  padding: 24px 20px 32px;
+}
+.theme-panel__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  text-align: center;
+}
+.theme-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 8px;
+  cursor: pointer;
+}
+.theme-item__dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.theme-item__text {
+  flex: 1;
+  min-width: 0;
+}
+.theme-item__name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.theme-item__desc {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-hint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 </style>

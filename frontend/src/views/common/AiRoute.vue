@@ -104,7 +104,7 @@ const convActions = computed(() => {
   const isNew = !conversationId.value
   const items = [{
     name: '创建新对话',
-    color: isNew ? '#FF6B35' : undefined,
+    color: isNew ? 'var(--color-primary)' : undefined,
     cid: ''
   }]
   convList.value.forEach(conv => {
@@ -113,7 +113,7 @@ const convActions = computed(() => {
     const active = cid === conversationId.value
     items.push({
       name: (active ? '✓ ' : '') + (time ? time.substring(0, 16) : '未知时间'),
-      color: active ? '#FF6B35' : undefined,
+      color: active ? 'var(--color-primary)' : undefined,
       cid: cid
     })
   })
@@ -298,11 +298,11 @@ onMounted(async () => {
 .bubble-ai .bubble-content :deep(ul) { padding-left: 16px; margin: 4px 0; }
 .bubble-ai .bubble-content :deep(li) { margin: 2px 0; }
 .bubble-ai .bubble-content :deep(code) { background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; font-size: 13px; font-family: monospace; }
-.bubble-user .bubble-content { background: linear-gradient(135deg, #FF6B35, #FF8A5C); color: #fff; border-bottom-right-radius: 4px; }
+.bubble-user .bubble-content { background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); color: #fff; border-bottom-right-radius: 4px; }
 
 .input-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fff; border-top: 1px solid #eee; padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
 .input-bar .input-field { flex: 1; height: 40px; border-radius: 20px; background: #f5f5f5; border: 1px solid #EBEDF0; padding: 0 16px; font-size: 14px; outline: none; transition: border-color 0.2s; }
-.input-bar .input-field:focus { border-color: #FF6B35; }
-.send-btn { height: 40px; padding: 0 20px; border: none; border-radius: 20px; background: linear-gradient(135deg, #FF6B35, #FF8A5C); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.input-bar .input-field:focus { border-color: var(--color-primary); }
+.send-btn { height: 40px; padding: 0 20px; border: none; border-radius: 20px; background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 .send-btn:disabled { opacity: 0.4; }
 </style>

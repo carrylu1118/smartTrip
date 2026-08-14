@@ -1,8 +1,8 @@
 <template>
   <div class="page-container">
     <AppHeader title="我的订单" @click-left="onSwitchRole">
-      <template #left><van-icon name="user-o" size="20" color="#FF6B35" /></template>
-      <template #right><van-icon name="service-o" size="20" color="#FF6B35" @click.stop="goAiRoute" /></template>
+      <template #left><van-icon name="user-o" size="20" color="var(--color-primary)" /></template>
+      <template #right><van-icon name="service-o" size="20" color="var(--color-primary)" @click.stop="goAiRoute" /></template>
     </AppHeader>
 
     <div class="trip-banner passenger-order-banner">
@@ -91,7 +91,7 @@ onMounted(async () => {
 .banner-text { color: #fff; }
 .banner-title { font-size: 18px; font-weight: 700; }
 .banner-sub { font-size: 12px; opacity: 0.85; margin-top: 4px; }
-.pay-btn { padding: 6px 18px; border: none; border-radius: 20px; background: linear-gradient(135deg, #FF6B35, #FF8A5C); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+.pay-btn { padding: 6px 18px; border: none; border-radius: 20px; background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
 .pay-btn:active { opacity: 0.85; }
-.switch-btn { font-size: 14px; color: #FF6B35; font-weight: 500; }
+.switch-btn { font-size: 14px; color: var(--color-primary); font-weight: 500; }
 </style>
