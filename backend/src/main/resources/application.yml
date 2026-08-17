@@ -38,7 +38,7 @@ spring:
       max-request-size: 10MB
   ai:
     openai:
-      api-key: ${DASHSCOPE_API_KEY:your-dashscope-api-key}
+      api-key: ${DASHSCOPE_API_KEY:sk-ws-H.EDPPIIR.koDi.MEYCIQCVQFB9inpMDMsEEoc0jNN-R7ysrCfbehGmjO01oEgvyQIhAN0f5qVhRzAHxGzUar80b5p7Wb2u033SwoF9m8q7Fwj7}
       base-url: https://dashscope.aliyuncs.com/compatible-mode
       chat:
         options:
