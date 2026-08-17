@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.hitch.mapper.ChatMessageMapper">
+    
+    <resultMap type="ChatMessage" id="ChatMessageResult">
+        <result property="id"    column="id"    />
+        <result property="conversationId"    column="conversation_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="role"    column="role"    />
+        <result property="content"    column="content"    />
+        <result property="createdTime"    column="created_time"    />
+    </resultMap>
+
+    <sql id="selectChatMessageVo">
+        select id, conversation_id, user_id, role, content, created_time from t_chat_message
+    </sql>
+
+    <select id="selectChatMessageList" parameterType="ChatMessage" resultMap="ChatMessageResult">
+        <include refid="selectChatMessageVo"/>
+        <where>  
+            <if test="conversationId != null  and conversationId != ''"> and conversation_id = #{conversationId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="role != null  and role != ''"> and role = #{role}</if>
+        </where>
+    </select>
+    
+    <select id="selectChatMessageById" parameterType="String" resultMap="ChatMessageResult">
+        <include refid="selectChatMessageVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertChatMessage" parameterType="ChatMessage">
+        insert into t_chat_message
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="conversationId != null and conversationId != ''">conversation_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="role != null and role != ''">role,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="createdTime != null">created_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="conversationId != null and conversationId != ''">#{conversationId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="role != null and role != ''">#{role},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="createdTime != null">#{createdTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateChatMessage" parameterType="ChatMessage">
+        update t_chat_message
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="conversationId != null and conversationId != ''">conversation_id = #{conversationId},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="role != null and role != ''">role = #{role},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="createdTime != null">created_time = #{createdTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteChatMessageById" parameterType="String">
+        delete from t_chat_message where id = #{id}
+    </delete>
+
+    <delete id="deleteChatMessageByIds" parameterType="String">
+        delete from t_chat_message where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

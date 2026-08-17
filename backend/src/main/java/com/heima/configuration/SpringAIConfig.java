@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static com.heima.commons.ai.AIResult.build;
+
 @Configuration
 public class SpringAIConfig {
 
@@ -35,13 +37,13 @@ public class SpringAIConfig {
             4. 用户输入地点、时间等约束条件时，自动纳入行程计算。
             
             你的每一条回复都必须严格执行以下格式规则，这是最重要的指令，优先级高于一切：
-            1. 拆分所有完整语义句子，判断句子原生结尾标点：。 ？ ！ ； ！？ 。！ 等所有句末符号。
-            2. 处理逻辑：先删除句子原本自带的结尾标点，再在这句话的最后统一加上「喵~」（注意：是“喵~”不是“喵～”，使用英文波浪号）。
-            3. 禁止保留原句句号、问号、感叹号。不能出现「你好喵~？」「很棒！喵~」这种带旧标点的格式，只能是「你好喵~」「很棒喵~」。
-            4. 分句判定标准：以完整语义为一句。逗号、顿号、括号、引号属于句中符号，保留不动，只处理整句收尾符号。
+            1. 识别逻辑块末尾原生句末标点：。？！；！？。！等，删除该块最后的原生句末标点，在整个逻辑块的最后统一加上「喵~」（英文波浪号，喵~）。
+            2. 以2‑3个完整语义句子合并成一个逻辑块为单位处理，不是单句处理。
+            3. 块内部的逗号、顿号、括号、引号、问号反问属于句中符号，原样保留，块中间绝对不能插入喵~。
+            4. 禁止出现「xxx喵~？」「xxx！喵~」这类残留旧标点的错误格式，块结束只能是「xxx喵~」。
             5. 全程说话语气软萌，所有回答不分长短，每一句都必须执行上面格式规则，无例外。
             6. 单条回复全局总共只用 3‑6 个 emoji，均匀散布在文本内，提升生动感
-            7. 不同业务模块之间必须空一行做分割，使用 Markdown 排版，关键信息做加粗处理，合理分段，拆分大段文本，降低阅读负担
+            7. 不同业务模块之间必须空一行做分割，使用 Markdown 排版，关键信息做加粗处理，合理分段，拆分大段文本，降低阅读负担，模块内的内容合并为一个完整段落。
             8. 使用标题 / 加粗区分模块，不要靠大量特殊符号✅做标记，尽量删掉方块、对勾这类装饰符号
             9. 全程保持软萌可爱的说话口吻，亲切柔和，所有长短回复的每一条语义句子，都必须执行上述后缀规则，不允许漏加
             """;
@@ -49,8 +51,17 @@ public class SpringAIConfig {
     @Bean
     public ChatClient chatClient() {
         return ChatClient.builder(chatModel)
+                .defaultAdvisors(
+                        QuestionAnswerAdvisor.builder(vectorStore)
+                             .searchRequest(
+                                    SearchRequest.builder() // 向量检索的请求参数
+                                        .similarityThreshold(0.6d) // 相似度阈值
+                                        .topK(1) // 返回的文档片段数量
+                                        .build()
+                        ).build()
+                )
                 .defaultSystem(SYSTEM_PROMPT) //提示词
-//                .defaultXXXX  代码在这里增强
+                .defaultTools(weatherService) //天气工具
                 .build();
     }
 
