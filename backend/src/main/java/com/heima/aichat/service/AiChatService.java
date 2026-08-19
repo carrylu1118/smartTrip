@@ -40,15 +40,15 @@ public class AiChatService {
     @Autowired
     private ChatClient chatClient;
 
-    // TODO: 任务4.2.3 - 完成ChatClient配置
     public Flux<String> chatStream(String conversationId, String userId, String userMessage) {
         conversationId = ensureCid(conversationId);
         final String cid = conversationId;
+        //查询最近的20条记录  参考buildHistory()
+        List<Message> history = buildHistory(cid);
 
         //保存新的用户消息到历史记录表（角色：user）
         saveMessage(conversationId,userId,"user",userMessage);
-        //查询最近的20条记录  参考buildHistory()
-        List<Message> history = buildHistory(cid);
+
         // 用于收集流式输出的完整内容
         StringBuilder assistantResponse = new StringBuilder();
 
@@ -110,7 +110,6 @@ public class AiChatService {
                 UUID.randomUUID().toString().replace("-", ""), cid, uid, role, content));
     }
 
-    // TODO: 任务4.2.4 - 完成会话上下文封装
     private List<Message> buildHistory(String conversationId) {
         //根据conversationId，使用chatMessageMapper查询历史消息
         List<ChatMessagePO> Pos = chatMessageMapper.selectByConversationId(conversationId, MAX_HISTORY);

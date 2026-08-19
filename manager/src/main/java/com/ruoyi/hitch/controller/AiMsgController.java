@@ -1,6 +1,7 @@
 package com.ruoyi.hitch.controller;
 
 import java.util.List;
+
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,14 +22,13 @@ import com.ruoyi.common.core.page.TableDataInfo;
 
 /**
  * 资讯库Controller
- * 
+ *
  * @author Shawn
  * @date 2026-08-13
  */
 @Controller
 @RequestMapping("/hitch/msg")
-public class AiMsgController extends BaseController
-{
+public class AiMsgController extends BaseController {
     private String prefix = "hitch/msg";
 
     @Autowired
@@ -36,8 +36,7 @@ public class AiMsgController extends BaseController
 
     @RequiresPermissions("hitch:msg:view")
     @GetMapping()
-    public String msg()
-    {
+    public String msg() {
         return prefix + "/msg";
     }
 
@@ -47,8 +46,7 @@ public class AiMsgController extends BaseController
     @RequiresPermissions("hitch:msg:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(AiMsg aiMsg)
-    {
+    public TableDataInfo list(AiMsg aiMsg) {
         startPage();
         List<AiMsg> list = aiMsgService.selectAiMsgList(aiMsg);
         return getDataTable(list);
@@ -61,8 +59,7 @@ public class AiMsgController extends BaseController
     @Log(title = "资讯库", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(AiMsg aiMsg)
-    {
+    public AjaxResult export(AiMsg aiMsg) {
         List<AiMsg> list = aiMsgService.selectAiMsgList(aiMsg);
         ExcelUtil<AiMsg> util = new ExcelUtil<AiMsg>(AiMsg.class);
         return util.exportExcel(list, "资讯库数据");
@@ -72,8 +69,7 @@ public class AiMsgController extends BaseController
      * 新增资讯库
      */
     @GetMapping("/add")
-    public String add()
-    {
+    public String add() {
         return prefix + "/add";
     }
 
@@ -84,9 +80,11 @@ public class AiMsgController extends BaseController
     @Log(title = "资讯库", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(AiMsg aiMsg)
-    {
-        return toAjax(aiMsgService.insertAiMsg(aiMsg));
+    public AjaxResult addSave(AiMsg aiMsg) {
+        int rows = aiMsgService.insertAiMsg(aiMsg);
+        //发送消息给rabbit
+        rabbitSendService.sendAddMsg(aiMsg.getId() + "");
+        return toAjax(rows);
     }
 
     /**
@@ -94,8 +92,7 @@ public class AiMsgController extends BaseController
      */
     @RequiresPermissions("hitch:msg:edit")
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable("id") Long id, ModelMap mmap)
-    {
+    public String edit(@PathVariable("id") Long id, ModelMap mmap) {
         AiMsg aiMsg = aiMsgService.selectAiMsgById(id);
         mmap.put("aiMsg", aiMsg);
         return prefix + "/edit";
@@ -108,9 +105,10 @@ public class AiMsgController extends BaseController
     @Log(title = "资讯库", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
-    public AjaxResult editSave(AiMsg aiMsg)
-    {
-        return toAjax(aiMsgService.updateAiMsg(aiMsg));
+    public AjaxResult editSave(AiMsg aiMsg) {
+        int rows = aiMsgService.updateAiMsg(aiMsg);
+        rabbitSendService.sendUpdateMsg(aiMsg.getId() + "");
+        return toAjax(rows);
     }
 
     /**
@@ -118,10 +116,11 @@ public class AiMsgController extends BaseController
      */
     @RequiresPermissions("hitch:msg:remove")
     @Log(title = "资讯库", businessType = BusinessType.DELETE)
-    @PostMapping( "/remove")
+    @PostMapping("/remove")
     @ResponseBody
-    public AjaxResult remove(String ids)
-    {
-        return toAjax(aiMsgService.deleteAiMsgByIds(ids));
+    public AjaxResult remove(String ids) {
+        int rows = aiMsgService.deleteAiMsgByIds(ids);
+        rabbitSendService.sendDeleteMsg(ids);
+        return toAjax(rows);
     }
 }

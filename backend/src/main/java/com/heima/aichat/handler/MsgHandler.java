@@ -1,9 +1,12 @@
 package com.heima.aichat.handler;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.heima.aichat.entity.po.AiMsg;
 import com.heima.aichat.entity.po.AiVectorIds;
 import com.heima.aichat.service.IAiMsgService;
 import com.heima.aichat.service.IAiVectorIdsService;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
@@ -11,6 +14,7 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -40,15 +44,28 @@ public class MsgHandler implements MqHandler {
     public void add(String ids) {
 
         //根据id，用aiMsgService，从数据库中查出AiMsg的记录
+        List<Integer> idList = parseIds(ids);
+        for (Integer id : idList){
+            AiMsg msg = aiMsgService.getById(id);
+            if(BeanUtil.isEmpty(msg)){
+                log.warn("AiMsg not found,id = {}", id);
+                continue;
+            }
+            //使用org.springframework.ai.document.Document对象完成向量化对象的封装
+            //Document doc = new Document(xxx)
+            String text = buildEmbeddingText(msg);
+            Document doc = new Document(text, Map.of(TYPE, id));
+            //使用vectorStore.add(xxx)完成向量化入库
+            vectorStore.add(List.of(doc));
 
-        //使用org.springframework.ai.document.Document对象完成向量化对象的封装
-        //Document doc = new Document(xxx)
-
-        //使用vectorStore.add(xxx)完成向量化入库
-
-        //Document存储后，会自动在对象里生成向量化redis里的id
-        //使用aiVectorIdsService保存到mysql中间表，将来删除要用到！
-
+            //Document存储后，会自动在对象里生成向量化redis里的id
+            AiVectorIds aiVectorIds = new AiVectorIds();
+            aiVectorIds.setType(TYPE);
+            aiVectorIds.setSourceId(String.valueOf(id));
+            aiVectorIds.setDocumentId(doc.getId());
+            //使用aiVectorIdsService保存到mysql中间表，将来删除要用到！
+            aiVectorIdsService.save(aiVectorIds);
+        }
     }
 
     @Override
@@ -61,10 +78,37 @@ public class MsgHandler implements MqHandler {
     @Override
     public void delete(String ids) {
         //根据传过来的mysql ids值，使用aiVectorIdsService从中间件里查出document_id
+        List<Integer> idList = parseIds(ids);
+        if (idList == null || idList.isEmpty()) {
+            log.warn("delete向量，解析后的id集合为空");
+            return;
+        }
+        for (Integer id : idList) {
+            try {
+                List<AiVectorIds> vectorMappingList = aiVectorIdsService.listByTypeAndSourceId(TYPE, String.valueOf(id));
+                if (vectorMappingList == null || vectorMappingList.isEmpty()) {
+                    log.warn("删除向量：未找到中间映射记录，业务id={}", id);
+                    continue;
+                }
+                List<String> documentIdList = vectorMappingList.stream()
+                        .map(AiVectorIds::getDocumentId)
+                        .toList();
 
-        //使用vectorStore.delete删除redis里的向量数据
+                //使用vectorStore.delete删除redis里的向量数据
+                vectorStore.delete(documentIdList);
+                log.info("Redis向量删除成功，id={}, documentIdList={}", id, documentIdList);
 
-        //使用aiVectorIdsService删除mysql中间表里的数据
+                //使用aiVectorIdsService删除mysql中间表里的数据
+                for (String docId : documentIdList) {
+                    aiVectorIdsService.removeByDocumentId(docId);
+                    log.info("中间映射表删除成功，id={}, documentId={}", id, docId);
+                }
+
+            } catch (Exception e) {
+                // 单条失败不打断整体循环，继续处理下一个id
+                log.error("删除向量发生异常，id={}", id, e);
+            }
+        }
 
     }
 
