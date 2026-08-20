@@ -27,7 +27,6 @@ import java.util.*;
 
 /**
  * 文件向量化处理器
- * TODO: 任务6.2.2 - 完成消费端消息处理（文件类消息）
  * <p>根据文件 URL 后缀判断类型，使用对应的 DocumentReader 解析文件内容，
  * 将解析后的文本片段写入 Redis 向量库。支持 PDF、DOCX、TXT。
  */
