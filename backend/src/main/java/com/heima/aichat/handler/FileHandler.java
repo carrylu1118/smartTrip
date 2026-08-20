@@ -8,6 +8,7 @@ import com.heima.commons.exception.BusinessRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
@@ -18,6 +19,7 @@ import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 
@@ -46,26 +48,54 @@ public class FileHandler implements MqHandler {
 
     @Override
     public void add(String ids) {
+        List<Integer> idList = parseIds(ids);
+        if (idList == null || idList.isEmpty()) {
+            log.warn("add vector, idList is empty");
+            return;
+        }
 
         //使用aiFilesService，根据id从数据库中查到对应的AiFiles
+        for (Integer fileId : idList) {
+            AiFiles aiFiles = aiFilesService.getById(fileId);
+            if (aiFiles == null) {
+                log.warn("FileHandler not found, id: {}", fileId);
+                continue;
+            }
+            String fileUrl = aiFiles.getUrl();
+            if (fileUrl == null || fileUrl.isEmpty()) {
+                log.warn("add vector, file url is blank, id: {}", fileId);
+                continue;
+            }
+            List<Document> rawDocuments;
+            try {
+                //判断AiFiles里url的后缀名是什么，目前可以只开发（pdf，md，txt文件）
+                rawDocuments = parseFile(aiFiles);
+                //spring根据不同的文件类型提供了不同的DocumentReader
+                // pdf ==> PagePdfDocumentReader
+                // md,txt ==> TextReader
+            } catch (Exception e) {
+                log.error("add vector, parseFile error, fileId={}", fileId, e);
+                continue;
+            }
 
-
-        //判断AiFiles里url的后缀名是什么，目前可以只开发（pdf，md，txt文件）
-
-
-        //spring根据不同的文件类型提供了不同的DocumentReader
-        // pdf ==> PagePdfDocumentReader
-        // md,txt ==> TextReader
-        //研究一下这些Reader的使用
-
-
-        //注意！如果返回的Document过长，可能会报错，这里提供了一个切分工具：splitIfNeeded，可能会帮到你
-
-
-        //调用vectorStore.add，将reader返回的documents写入redis向量库
-
-        //调用aiVectorIdsService，把document的id和mysql里aifiles的id写进中间表，后续删除要用到
-
+            if (rawDocuments.isEmpty()) {
+                log.warn("add vector, no document content, fileId={}", fileId);
+                continue;
+            }
+            //注意！如果返回的Document过长，可能会报错，这里提供了一个切分工具：splitIfNeeded，可能会帮到你
+            List<Document> splitDocuments = splitIfNeeded(rawDocuments);
+            //调用vectorStore.add，将reader返回的documents写入redis向量库
+            vectorStore.add(splitDocuments);
+            //调用aiVectorIdsService，把document的id和mysql里aifiles的id写进中间表，后续删除要用到
+            for (Document document : splitDocuments) {
+                AiVectorIds aiVectorIds = new AiVectorIds();
+                aiVectorIds.setType(TYPE);
+                aiVectorIds.setSourceId(String.valueOf(fileId));
+                aiVectorIds.setDocumentId(document.getId());
+                aiVectorIdsService.save(aiVectorIds);
+            }
+            log.info("文件向量化完成 fileId={},分片数量={}", fileId, splitDocuments.size());
+        }
     }
 
     @Override
@@ -76,7 +106,35 @@ public class FileHandler implements MqHandler {
 
     @Override
     public void delete(String ids) {
-        //参考任务5.2.2里的删除思路
+        List<Integer> idList = parseIds(ids);
+        if (idList == null || idList.isEmpty()) {
+            log.warn("delete向量，解析后的id集合为空");
+            return;
+        }
+        for (Integer id : idList) {
+            try {
+                List<AiVectorIds> aiVectorIdsList = aiVectorIdsService.listByTypeAndSourceId(TYPE, String.valueOf(id));
+                if (aiVectorIdsList == null || aiVectorIdsList.isEmpty()){
+                    log.warn("delete向量，id={}对应的aiVectorIds为空", id);
+                    continue;
+                }
+                List<String> documentIdList = aiVectorIdsList.stream()
+                        .map(AiVectorIds::getDocumentId)
+                        .toList();
+
+                //使用vectorStore.delete删除redis里的向量数据
+                vectorStore.delete(documentIdList);
+                log.info("Redis向量删除成功，id={}, documentIdList={}", id, documentIdList);
+
+                //使用aiVectorIdsService删除mysql中间表里的数据
+                for (String docId : documentIdList) {
+                    aiVectorIdsService.removeByDocumentId(docId);
+                    log.info("中间映射表删除成功，id={}, documentId={}", id, docId);
+                }
+            } catch (Exception e){
+                log.error("删除向量发生异常，id={}", id, e);
+            }
+        }
     }
 
     // ---- 内部 ----
@@ -89,28 +147,40 @@ public class FileHandler implements MqHandler {
                 .toList();
     }
 
-    private List<Document> parseFile(AiFiles file){
+    private List<Document> parseFile(AiFiles file) throws Exception {
         String url = file.getUrl();
         String lower = url.toLowerCase();
 
         if (lower.endsWith(".pdf")) {
             return parsePdf(file.getUrl());
-        }else if (lower.endsWith(".txt") || lower.endsWith(".md") || lower.endsWith(".csv")) {
+        } else if (lower.endsWith(".txt") || lower.endsWith(".md") || lower.endsWith(".csv")) {
             return parseText(file.getUrl());
         } else {
-            // 未知类型
-            throw new RuntimeException("Unknown file type, trying as text: "+"name="+ file.getName() + ",url="+ url);
+            log.warn("unsupported file type, name={}, url={}",file.getName(),url);
+            return Collections.emptyList();
         }
     }
 
-    private List<Document> parsePdf(String url) {
-
-        return splitIfNeeded(null);
+    private List<Document> parsePdf(String url) throws Exception {
+        Resource resource = new UrlResource(url);
+        try {
+            PagePdfDocumentReader pdfReader = new PagePdfDocumentReader(resource);
+            return pdfReader.read();
+        } catch (Exception e) {
+            log.error("parsePdf error, url={}", url, e);
+            return Collections.emptyList();
+        }
     }
 
-    private List<Document> parseText(String url) {
-
-        return splitIfNeeded(null);
+    private List<Document> parseText(String url) throws Exception{
+        Resource resource = new UrlResource(url);
+        try {
+            TextReader textReader = new TextReader(resource);
+            return textReader.read();
+        } catch (Exception e) {
+            log.error("parseText error, url={}", url, e);
+            return Collections.emptyList();
+        }
     }
 
     /**
@@ -124,7 +194,7 @@ public class FileHandler implements MqHandler {
                 .withKeepSeparator(true)
                 .withChunkSize(1000)
                 .withMinChunkLengthToEmbed(10)
-                .withPunctuationMarks(List.of('#','\n'))
+                .withPunctuationMarks(List.of('#', '\n'))
                 .build();
         return splitter.apply(docs);
     }

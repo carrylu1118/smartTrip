@@ -9,7 +9,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * 文件库对象 t_ai_files
  * 
  * @author Shawn
- * @date 2026-08-13
+ * @date 2026-08-20
  */
 public class AiFiles extends BaseEntity
 {

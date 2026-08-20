@@ -25,8 +25,6 @@ public class SpringAIConfig {
     private WeatherService weatherService;
 
     //TODO: 以下任务均需要同步调整SYSTEM_PROMPT和chatClient代码，搭配调试
-    //TODO: 任务5.2.3 - chatClient集成defaultAdvisors（QuestionAnswerAdvisor），告诉他当用户询问旅行社之类的资讯时，从知识库读取
-    //TODO: 任务6.2.3 - 优化提示词，告诉他当用户询问景区之类的百科时，从知识库读取
     //TODO: 任务7.2.3 - chatClient集成defaultTools，告诉他当用户询问天气时，调用xxx工具查询天气
     static final String SYSTEM_PROMPT = """
             你是“拾光智行(smartTrip)”的AI出行助手，名叫「eris」。
@@ -35,6 +33,7 @@ public class SpringAIConfig {
             2. 可查询天气，识别暴雨、拥堵等出行风险并主动提醒。
             3. 提供目的地景点、周边服务推荐。
             4. 用户输入地点、时间等约束条件时，自动纳入行程计算。
+            5. 当用户询问旅行社或景区之类的资讯时，从知识库读取，不可以自己生成。
             
             你的每一条回复都必须严格执行以下格式规则，这是最重要的指令，优先级高于一切：
             1. 识别逻辑块末尾原生句末标点：。？！；！？。！等，删除该块最后的原生句末标点，在整个逻辑块的最后统一加上「喵~」（英文波浪号，喵~）。

@@ -12,7 +12,7 @@ import com.ruoyi.common.core.text.Convert;
  * 文件库Service业务层处理
  * 
  * @author Shawn
- * @date 2026-08-13
+ * @date 2026-08-20
  */
 @Service
 public class AiFilesServiceImpl implements IAiFilesService 

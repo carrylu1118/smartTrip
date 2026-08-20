@@ -23,7 +23,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
  * 文件库Controller
  * 
  * @author Shawn
- * @date 2026-08-13
+ * @date 2026-08-20
  */
 @Controller
 @RequestMapping("/hitch/files")
@@ -86,7 +86,10 @@ public class AiFilesController extends BaseController
     @ResponseBody
     public AjaxResult addSave(AiFiles aiFiles)
     {
-        return toAjax(aiFilesService.insertAiFiles(aiFiles));
+        int row = aiFilesService.insertAiFiles(aiFiles);
+        //发送消息给rabbit
+        rabbitSendService.sendAddFile(aiFiles.getId() + "");
+        return toAjax(row);
     }
 
     /**
@@ -110,7 +113,10 @@ public class AiFilesController extends BaseController
     @ResponseBody
     public AjaxResult editSave(AiFiles aiFiles)
     {
-        return toAjax(aiFilesService.updateAiFiles(aiFiles));
+        int row = aiFilesService.updateAiFiles(aiFiles);
+        //发送消息给rabbit
+        rabbitSendService.sendUpdateFile(aiFiles.getId() + "");
+        return toAjax(row);
     }
 
     /**
@@ -122,6 +128,9 @@ public class AiFilesController extends BaseController
     @ResponseBody
     public AjaxResult remove(String ids)
     {
-        return toAjax(aiFilesService.deleteAiFilesByIds(ids));
+        int row = aiFilesService.deleteAiFilesByIds(ids);
+        //发送消息给rabbit
+        rabbitSendService.sendDeleteFile(ids);
+        return toAjax(row);
     }
 }

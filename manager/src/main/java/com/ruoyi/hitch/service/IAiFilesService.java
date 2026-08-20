@@ -7,7 +7,7 @@ import com.ruoyi.hitch.domain.AiFiles;
  * 文件库Service接口
  * 
  * @author Shawn
- * @date 2026-08-13
+ * @date 2026-08-20
  */
 public interface IAiFilesService 
 {

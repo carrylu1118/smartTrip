@@ -2,6 +2,7 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
     <th:block th:include="include :: header('新增文件库')" />
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
@@ -12,15 +13,19 @@
                     <input name="name" class="form-control" type="text">
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group">    
                 <label class="col-sm-3 control-label">地址：</label>
                 <div class="col-sm-8">
-                    <textarea name="url" class="form-control"></textarea>
+                    <input type="hidden" name="url">
+                    <div class="file-loading">
+                        <input class="form-control file-upload" id="url" name="file" type="file">
+                    </div>
                 </div>
             </div>
         </form>
     </div>
     <th:block th:include="include :: footer" />
+    <th:block th:include="include :: bootstrap-fileinput-js"/>
     <script th:inline="javascript">
         var prefix = ctx + "hitch/files"
         $("#form-files-add").validate({
@@ -32,6 +37,16 @@
                 $.operate.save(prefix + "/add", $('#form-files-add').serialize());
             }
         }
+
+        $(".file-upload").fileinput({
+            uploadUrl: ctx + 'common/upload',
+            maxFileCount: 1,
+            autoReplace: true
+        }).on('fileuploaded', function (event, data, previewId, index) {
+            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+        }).on('fileremoved', function (event, id, index) {
+            $("input[name='" + event.currentTarget.id + "']").val('')
+        })
     </script>
 </body>
 </html>
