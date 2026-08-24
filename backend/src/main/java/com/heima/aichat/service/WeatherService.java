@@ -39,26 +39,43 @@ public class WeatherService {
         System.out.println(bj);
     }
 
-    /*
-     * TODO: 任务7.2.1 - 根据城市名查询GEO坐标，天气查询服务要用坐标而不是城市名
-     */
     private Map<String, Double> geocode(String city) throws Exception {
         //根据city名称拼接查询geo的url
         //官方参考：https://open-meteo.com/en/docs/geocoding-api
+        String encodedCity = URLEncoder.encode(city, StandardCharsets.UTF_8);
+        String url = GEO_URL + "?name=" + encodedCity + "&count=1&language=zh&format=json";
+        log.info("正在查询 {} 的地理坐标,url：{}", city, url);
 
         //发起http请求，请求上述url得到返回的json
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        String json = response.body();
 
         //解析json，组装成Map，返回给调用方
-
         Map<String, Double> geo = new LinkedHashMap<>();
         geo.put("lat", 0d); //纬度 (Latitude)
         geo.put("lng", 0d); //经度 (Longitude)
+
+        JsonNode root = mapper.readTree(json);
+        JsonNode results = root.get("results");
+        // 判断有返回结果数组且不为空
+        if (results != null && results.isArray() && !results.isEmpty()) {
+            JsonNode firstResult = results.get(0);
+            double lat = firstResult.get("latitude").asDouble();
+            double lng = firstResult.get("longitude").asDouble();
+            geo.put("lat", lat);
+            geo.put("lng", lng);
+            log.info("城市[{}]获取坐标成功：lat={}, lng={}", city, lat, lng);
+        } else {
+            log.warn("城市[{}]未匹配到地理坐标，返回默认0,0", city);
+        }
         return geo;
     }
 
-    /**
-     * TODO: 任务7.2.1 - 根据城市名查询当前天气
-     */
+
     @Tool(description = "根据城市名查询天气")
     public String getWeather(@ToolParam(description = "城市名称，如：北京、济南") String city) throws Exception {
         log.info("AI调用tools工具查询天气：{}",city);
@@ -67,13 +84,46 @@ public class WeatherService {
 
         //根据geo坐标拼接查询url
         //官方参考：https://open-meteo.com/en/docs/cma-api
+        String url = WEATHER_URL + "?latitude=" + geo.get("lat") + "&longitude=" + geo.get("lng")
+                + "&hourly=temperature_2m,precipitation,rain&daily=weather_code,temperature_2m_max,temperature_2m_min"
+                + "&timezone=Asia%2FTokyo&forecast_days=3&models=cma_grapes_global";
+        log.info("查询天气中,url：{}", url);
 
         //发起http请求，请求上述url得到返回的json
-
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         //解析json，拼接成天气字符串，返回给大模型
+        JsonNode root = mapper.readTree(response.body());
+        JsonNode daily = root.get("daily");
+        if(daily == null){
+            return city + "天气查询失败，接口返回数据异常";
+        }
 
-        String weather = city+"天气很好！";
+        JsonNode timeArr = daily.get("time");
+        JsonNode codeArr = daily.get("weather_code");
+        JsonNode maxTempArr = daily.get("temperature_2m_max");
+        JsonNode minTempArr = daily.get("temperature_2m_min");
 
+        StringBuilder sb = new StringBuilder();
+        sb.append("【").append(city).append(" 未来3天天气预报】\n");
+        //循环3天
+        for (int i = 0; i < 3; i++) {
+            String date = timeArr.get(i).asText();
+            int weatherCode = codeArr.get(i).asInt();
+            double maxT = maxTempArr.get(i).asDouble();
+            double minT = minTempArr.get(i).asDouble();
+            String desc = weatherDesc(weatherCode);
+
+            sb.append(date).append("：")
+                    .append(desc)
+                    .append("，温度：").append(minT).append("℃ ~ ").append(maxT).append("℃\n");
+        }
+
+        String weather = sb.toString();
+        log.info("天气查询结果：{}", weather);
         return weather;
     }
 
